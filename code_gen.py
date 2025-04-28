@@ -1389,22 +1389,73 @@ class CodeGenerator:
             var_name = expr_tokens[0]
             var_base_type = self.variable_types[self.current_scope][var_name]
             
-            # Format array access
-            array_access = self._format_expression(expr_tokens)
+            # Check if this is part of a concatenation expression
+            plus_index = -1
+            for j, token in enumerate(expr_tokens):
+                if token == "+":
+                    plus_index = j
+                    break
             
-            # Use appropriate printf format based on the element type
-            if var_base_type == 'int':
-                self.add_line(f"printf(\"%d\", {array_access});")
-            elif var_base_type == 'decimal' or var_base_type == 'float':
-                self.add_line(f"printf(\"%f\", {array_access});")
-            elif var_base_type == 'bool':
-                self.add_line(f"printf(\"%s\", {array_access} ? \"true\" : \"false\");")
-            elif var_base_type == 'letter' or var_base_type == 'char':
-                self.add_line(f"printf(\"%c\", {array_access});")
-            elif var_base_type == 'string':
-                self.add_line(f"printf(\"%s\", {array_access});")
+            if plus_index > 0:
+                # Handle concatenation - split into separate printf calls
+                
+                # First part - array element
+                array_expr = expr_tokens[:plus_index]
+                array_access = self._format_expression(array_expr)
+                
+                # Use appropriate printf format based on the element type
+                if var_base_type == 'int':
+                    self.add_line(f"printf(\"%d\", {array_access});")
+                elif var_base_type == 'decimal' or var_base_type == 'float':
+                    self.add_line(f"printf(\"%f\", {array_access});")
+                elif var_base_type == 'bool':
+                    self.add_line(f"printf(\"%s\", {array_access} ? \"true\" : \"false\");")
+                elif var_base_type == 'letter' or var_base_type == 'char':
+                    self.add_line(f"printf(\"%c\", {array_access});")
+                elif var_base_type == 'string':
+                    self.add_line(f"printf(\"%s\", {array_access});")
+                else:
+                    self.add_line(f"printf(\"%s\", {array_access});")
+                
+                # Second part - string literal or other expression
+                second_expr = expr_tokens[plus_index+1:]
+                second_part = self._format_expression(second_expr)
+                
+                # Determine type of second part
+                second_type = "string"  # Default assumption for string literals
+                if len(second_expr) == 1:
+                    second_var = second_expr[0]
+                    if second_var in self.variable_types.get(self.current_scope, {}):
+                        second_type = self.variable_types[self.current_scope][second_var]
+                
+                # Generate appropriate printf call for second part
+                if second_type == "int":
+                    self.add_line(f"printf(\"%d\", {second_part});")
+                elif second_type == "decimal" or second_type == "float":
+                    self.add_line(f"printf(\"%f\", {second_part});")
+                elif second_type == "bool":
+                    self.add_line(f"printf(\"%s\", {second_part} ? \"true\" : \"false\");")
+                elif second_type == "letter" or second_type == "char":
+                    self.add_line(f"printf(\"%c\", {second_part});")
+                else:
+                    self.add_line(f"printf(\"%s\", {second_part});")
             else:
-                self.add_line(f"printf(\"%s\", {array_access});")
+                # No concatenation - handle as a single array access
+                array_access = self._format_expression(expr_tokens)
+                
+                # Use appropriate printf format based on the element type
+                if var_base_type == 'int':
+                    self.add_line(f"printf(\"%d\", {array_access});")
+                elif var_base_type == 'decimal' or var_base_type == 'float':
+                    self.add_line(f"printf(\"%f\", {array_access});")
+                elif var_base_type == 'bool':
+                    self.add_line(f"printf(\"%s\", {array_access} ? \"true\" : \"false\");")
+                elif var_base_type == 'letter' or var_base_type == 'char':
+                    self.add_line(f"printf(\"%c\", {array_access});")
+                elif var_base_type == 'string':
+                    self.add_line(f"printf(\"%s\", {array_access});")
+                else:
+                    self.add_line(f"printf(\"%s\", {array_access});")
             
             # Skip past closing parenthesis and find semicolon
             i += 1
