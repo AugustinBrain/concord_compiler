@@ -1,0 +1,201 @@
+empty multiply(){
+int a = 1, b = 2, c = 3;
+int mult; 
+mult = a * b * c;
+display("result: " + mult);
+}
+
+empty divide(){
+int a = 1, b = 2, c = 3;
+int div;
+div = a / b / c;
+display("result: " + div);
+}
+
+empty add(){
+int a = 1, b = 2, c = 3;
+int add;
+add = a + (b + c);
+display("result: " + add);
+}
+
+empty subtract(){
+int a = 1, b = 2, c = 3;
+int sub;
+sub = (a - b) - c;
+display("result: " + sub);
+}
+
+main(){
+	int choice;
+	display("1 - Multiplication  2 - Division  3 - Addition  4 - Subtraction");
+	display("Choose Operation: ");
+	choice = 1;
+	
+	if (choice == 1){
+		multiply();
+	}
+	elseif (choice == 2){
+		divide();
+	}
+	elseif (choice == 3){
+		add();
+	}
+	elseif (choice == 4){
+		subtract();
+	}
+}
+
+6. Triangle
+display("*");
+display("* *");
+display("* * *");
+display("* * * *");
+7. Reverse Triangle
+display("      *");
+display("    * *");
+display("  * * *");
+display("* * * *");
+
+8. Middle Triangle
+display("    *");
+display("  * *");
+display(" * * *");
+display("* * * *");
+9. Square
+display("* * * *");
+display("* * * *");
+display("* * * *");
+display("* * * *");
+
+10. Rectangle
+display("* * * * * * * *");
+display("* * * * * * * *");
+display("* * * * * * * *");
+display("* * * * * * * *");
+
+11-15. Function Call of No’s 6-10 (e.g., 1 – Right Triangle, 2 – Square, etc…)
+
+empty triangle(){
+display("*");
+display("* *");
+display("* * *");
+display("* * * *");
+}
+
+empty reverseTriangle(){
+display("      *");
+display("    * *");
+display("  * * *");
+display("* * * *");
+}
+
+
+empty middleTriangle(){
+display("    *");
+display("  * *");
+display(" * * *");
+display("* * * *");
+}
+
+empty square(){
+display("* * * *");
+display("* * * *");
+display("* * * *");
+display("* * * *");
+}
+
+
+empty rectangle(){
+display("* * * * * * * *");
+display("* * * * * * * *");
+display("* * * * * * * *");
+display("* * * * * * * *");
+}
+
+main(){
+    int choice, rows;
+
+    display("Enter a number (6-Triangle, 7-Reverse Triangle, 8-Middle Triangle, 9-Square, 10-Rectangle): ");
+    choice = 6;
+
+    if (choice == 6){
+        triangle();
+    }
+    elseif (choice == 7){
+        reverseTriangle();
+    }
+    elseif (choice == 8){
+        middleTriangle();
+    }
+    elseif (choice == 9){
+        square();
+    }
+    elseif (choice == 10){
+        rectangle();
+    }
+    else{
+        display("Invalid choice.");
+    }
+}
+
+main() {
+    int length, width, area;
+
+    display("Enter length: ");
+    length = reads();
+
+    display("Enter width: ");
+    width = reads();
+
+    area = length * width;
+
+    display("Area of Rectangle " + area);
+}
+
+main() {
+    int length, width, perimeter;
+
+    display("Enter the length: ");
+    length = 2;
+
+    display("Enter width: ");
+    width = 3;
+
+    perimeter = 2 * (length + width);
+
+    display("Perimeter of Rectangle: " + perimeter);
+}
+
+main() {
+    int number;
+
+    display("Enter an integer: ");
+    number = 2;
+
+    if ((number % 2) == 0){
+        display("is Even.");
+    }
+
+    else{
+        display("is Odd.");
+    }
+    
+}
+
+main() {
+    int year;
+
+    display("Enter a year: ");
+    year = 2022;
+
+    if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)){
+        display("is a Leap Year.: " + year);
+    }
+    else{
+        display("is NOT a Leap Year.: " + year);
+    }
+}
+
+
+

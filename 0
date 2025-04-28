@@ -1,0 +1,90 @@
+fixed int current_year = 2025;
+
+int a = 1, b, c = 2;
+decimal x, y = 1, z = 1.3;
+
+int d[2];
+int e[2][3];
+
+string f[2] = {"f1", "f2"};
+int g[2][3] = {{1,2,3},{4,5,6}};
+
+letter h[] = {'a', 'e', 'i', 'o', 'u'};
+
+unit record{
+    string name;
+    int id;
+    int birth_year;
+}
+
+unit record employee = {"Johnny", 78900, 41};
+
+empty validateEmployee(int id){
+    if (id == employee.id){
+        display("Hello, " + employee.name + ".");
+    }
+}
+
+task getAge(int birth_year){
+    return current_year - birth_year;
+}
+
+main(){
+    letter vowels;
+    int age;
+    validateEmployee(employee.id);
+    age = getAge(employee.birth_year);
+    
+    for vowels ins h{
+       display(vowels);
+    }  
+}
+
+empty multiply(){
+int a = 1, b = 2, c = 3;
+int mult; 
+mult = a * b * c;
+display("result: " + mult);
+}
+
+empty divide(){
+int a = 1, b = 2, c = 3;
+int div;
+div = a / b / c;
+display("result: " + div);
+}
+
+empty add(){
+int a = 1, b = 2, c = 3;
+int add;
+add = a + (b + c);
+display("result: " + add);
+}
+
+empty subtract(){
+int a = 1, b = 2, c = 3;
+int sub;
+sub = (a - b) - c;
+display("result: " + sub);
+}
+
+main(){
+	int choice;
+	display("1 - Multiplication  2 - Division  3 - Addition  4 - Subtraction");
+	display("Choose Operation: ");
+	choice = 1;
+	
+	if (choice == 1){
+		multiply();
+	}
+	elseif (choice == 2){
+		divide();
+	}
+	elseif (choice == 3){
+		add();
+	}
+	elseif (choice == 4){
+		subtract();
+	}
+}
+
