@@ -71,7 +71,7 @@ class Tokenizer:
             if char is None and state == 0:
                 break
 
-            print(f"State: {state}, char: {repr(char)}, Lexeme: {repr(lexeme)}, Line: {line}, Column {column}")
+            #print(f"State: {state}, char: {repr(char)}, Lexeme: {repr(lexeme)}, Line: {line}, Column {column}")
 
             match state:
                 case 0:

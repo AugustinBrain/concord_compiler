@@ -902,8 +902,6 @@ class Semantic:
             # Skip to end of statement for error recovery
             while self.index < len(self.tokens) and self.tokens[self.index][1] != ";":
                 self.index += 1
-            # if self.index < len(self.tokens):
-            #     self.index += 1  # Move past semicolon
             return
         else:
             type_mapping = {
@@ -990,7 +988,6 @@ class Semantic:
                             current_token = self.tokens[self.index][0]
                             
                             if current_token == ")":
-                                #self.index += 1  # Move past ')'
                                 break
                             elif current_token == ",":
                                 self.index += 1  # Move past comma to next parameter
@@ -1063,17 +1060,10 @@ class Semantic:
                     return "error"
                 
                 # Move past the field name
-                # self.index += 1
-
-                type_mapping = {
-                    "int": "int_literal",
-                    "decimal": "decimal_literal",
-                    "bool": "bool",
-                    "letter": "letter_literal",
-                    "string": "string_literal"
-                }
-
-                target_type = symbol.data_type
+                self.index += 1
+                
+                # Set target_type to the field's type, not the unit type
+                target_type = field_type
                 
             else:
                 # Regular variable (not an array)
@@ -1082,25 +1072,82 @@ class Semantic:
             assign_op = {'+=', '-=', '*=', '/=', '%=', '**='}
 
             if symbol.symbol_type != "function":
+                if self.tokens[self.index][0] == "=":
+                    self.index += 1 # Move to value after =
+                    value_type = self.validate_expression()
 
-                self.index += 1
-                if self.tokens[self.index][0] == "+=":
-                    if target_type == "letter":
+                    # For unit variables, we need special handling
+                    if symbol.symbol_type == "unit_variable":
+                        # We've already validated that the field exists and set target_type to field_type
+                        if self.is_unit_field_type_mismatch(target_type, value_type, field_name, field_line, field_column):
+                            return
+                    else:
+                        # Perform Type Checking for scalar variables
+                        if self.is_type_mismatch(target_type, value_type, lexeme, line, column):
+                            return
+                elif self.tokens[self.index][0] in assign_op:
+                    op = self.tokens[self.index][0]
+                    if target_type == "letter" and op != "+=":
                         self.errors.append(
-                        f"⚠️ Semantic Error at (line {line}, column {column}): Cannot use '{self.tokens[self.index][1]}' on letter_literal."
+                        f"⚠️ Semantic Error at (line {line}, column {column}): Cannot use '{op}' on letter_literal."
                         )
                         return "error"
+                    
+                    self.index += 1 # Move to value after op
+                    value_type = self.validate_expression()
+                    
+                    # For unit variables, we need special handling
+                    if symbol.symbol_type == "unit_variable":
+                        # Check if the operation is valid for the field type
+                        if target_type == "string" and op != "+=":
+                            self.errors.append(
+                                f"⚠️ Semantic Error at (line {field_line}, column {field_column}): Cannot use '{op}' on string field '{field_name}'."
+                            )
+                            return "error"
+                        elif target_type == "letter" and op != "+=":
+                            self.errors.append(
+                                f"⚠️ Semantic Error at (line {field_line}, column {field_column}): Cannot use '{op}' on letter field '{field_name}'."
+                            )
+                            return "error"
+                        
+                        # We've already validated that the field exists
+                        if self.is_unit_field_type_mismatch(target_type, value_type, field_name, field_line, field_column):
+                            return
+                    else:
+                        # Perform Type Checking for scalar variables
+                        if self.is_type_mismatch(target_type, value_type, lexeme, line, column):
+                            return
 
-                
-                self.index += 1 # Move to value after =
-                value_type = self.validate_expression()
-
-                # Perform Type Checking for scalar variables
-                if self.is_type_mismatch(target_type, value_type, lexeme, line, column):
-                    # self.errors.append(
-                    #     f"Validation Stopped: Data Type {data_type}, Value Type {value_type} at line {line}, column {column}"
-                    # )
-                    return  # Stop processing if there's a type mismatch
+    # Add this new function to check type mismatches for unit fields specifically
+    def is_unit_field_type_mismatch(self, data_type, value_type, field_name, line, column):
+        """Check if there's a type mismatch for unit field assignments"""
+        # Special case: user_input is compatible with all types
+        if value_type == "user_input":
+            return False  # No mismatch - user_input can be assigned to any type
+        
+        # Map value_type to expected base types
+        type_mapping = {
+            "int_literal": "int",
+            "decimal_literal": "decimal",
+            "letter_literal": "letter",
+            "string_literal": "string",
+            "bool": "bool"
+        }
+        
+        # Get the base type for the value type
+        base_value_type = type_mapping.get(value_type, value_type)
+        
+        # Check for type compatibility
+        if data_type != base_value_type:
+            # Special case: allow numeric type compatibility (int, decimal)
+            numeric_types = ["int", "decimal"]
+            if not (data_type in numeric_types and base_value_type in numeric_types):
+                self.errors.append(
+                    f"⚠️ Semantic Error at (line {line}, column {column}): Type mismatch for unit field '{field_name}':"
+                    f" Expected '{data_type}', got '{value_type}'."
+                )
+                return True  # There is a mismatch
+        return False  # No mismatch
 
         
     def validate_expression(self, entered_param = False):
@@ -1421,12 +1468,13 @@ class Semantic:
                 
                 if self.index + 1 < len(self.tokens) and self.tokens[self.index + 1][0] == "[":
                     # Check if variable is actually an array
-                    if symbol.dimension == 0:  # Not an array
+                    if symbol.dimension == 0 and symbol.data_type != "string":  # Not an array
                         self.errors.append(f"⚠️ Semantic Error at (line {line}, column {column}): Variable '{lexeme}' is not an array")
                         return "error"
 
                 # Handle array access - FIX HERE
-                if symbol.dimension > 0:  # Check if it's an array
+                # Add in the array access handling section:
+                if symbol.dimension > 0 or symbol.data_type == "string":  # Check if it's an array OR a string
                     # First increment past the identifier
                     self.index += 1
                     
@@ -1464,11 +1512,16 @@ class Semantic:
                                     return "error"
                             else:
                                 # Error: 2D Array variable used without second index
-                                self.errors.append(f"⚠️ Semantic Error at (line {line}, column {column}): 2D Array variable '{lexeme}' missing second index")
-                                return "error"
+                                if symbol.dimension > 1:  # Only report error if it's actually a 2D array
+                                    self.errors.append(f"⚠️ Semantic Error at (line {line}, column {column}): 2D Array variable '{lexeme}' missing second index")
+                                    return "error"
                         
-                        # Push the type to stack
-                        operand_stack.append(type_mapping.get(symbol.data_type, symbol.data_type))
+                        # Important change: Push the correct type to stack
+                        # For strings, indexing should return letter_literal
+                        if symbol.data_type == "string":
+                            operand_stack.append("letter_literal")
+                        else:
+                            operand_stack.append(type_mapping.get(symbol.data_type, symbol.data_type))
                     else:
                         # Error: Array variable used without indexing
                         self.errors.append(f"⚠️ Semantic Error at (line {line}, column {column}): Array variable '{lexeme}' must have index")

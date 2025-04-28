@@ -95,3 +95,67 @@ main() {
         display("The word is not a palindrome.");
     }
 }
+
+// Select Statements
+
+main(){
+
+int x;
+display("Enter a choice from 1 - 3: ");
+x = reads();
+
+select (x){
+    option 1:
+    display("You chose 1");
+    skip;
+    option 2:
+    display("You chose 2");
+    skip;
+    option 3:
+    display("You chose 3");
+    skip;
+    default:
+    display("Invalid Input");
+}
+
+}
+
+
+unit car{
+    int year;
+    int id;
+}
+
+main(){
+    unit car mycar;
+    mycar.year = 1;
+}
+
+unit car{
+int year;
+string name;
+}
+
+main(){
+unit car car1;
+unit car car2;
+unit car car3 = {1, "hello"};
+
+car1.year = reads();
+car1.name = reads();
+
+car2.year = 1;
+car2.name = "Tuyota";
+
+display("Car 1\n");
+display(car1.year + "\n");
+display(car1.name + "\n");
+
+display("Car 2\n");
+display(car2.year + "\n");
+display(car2.name + "\n");
+
+display("Car 3\n");
+display(car3.year + "\n");
+display(car3.name + "\n");
+}

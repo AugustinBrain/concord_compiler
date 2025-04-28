@@ -3,6 +3,7 @@ class CodeGenerator:
         self.output_code = []
         self.indentation = 0
         self.variable_types = {}  # Keep track of variable types
+        self.struct_definitions = {}  # Track struct definitions
         self.current_scope = "global"  # Track current function scope, default to global
         self.debug_mode = True  # Enable debug output
         
@@ -78,6 +79,12 @@ class CodeGenerator:
                     comment_text.append("*/")
                 
                 self.add_line(" ".join(comment_text))
+                continue
+
+            # Check for unit (struct) declarations
+            if tokens[i][0] == 'unit' and i + 2 < len(tokens) and tokens[i+1][1] == 'identifier' and tokens[i+2][0] == '{':
+                self.debug(f"Found unit declaration at index {i}")
+                i = self._process_unit_declaration(tokens, i)
                 continue
             
             # Check for global variable declarations
@@ -451,18 +458,26 @@ class CodeGenerator:
             return index + 1
         
         # Generate struct declaration
-        self.add_line(f"typedef struct {struct_name} {{")
+        self.add_line(f"struct {struct_name} {{")
         self.indentation += 1
+        
+        # Initialize this struct in our tracking dict
+        self.struct_definitions[struct_name] = {}
         
         # Process struct fields
         i = brace_index + 1
         while i < end_index:
             if self._is_variable_declaration(tokens, i):
                 # Extract field type and name
-                field_type = self._map_datatype(tokens[i][0])
+                field_type = tokens[i][0]
+                mapped_field_type = self._map_datatype(field_type)
+                
                 if i + 1 < end_index and tokens[i+1][1] == 'identifier':
                     field_name = tokens[i+1][0]
-                    self.add_line(f"{field_type} {field_name};")
+                    self.add_line(f"{mapped_field_type} {field_name};")
+                    
+                    # Store the field type in our struct definition tracking
+                    self.struct_definitions[struct_name][field_name] = field_type
                     
                     # Skip past field declaration
                     i += 2
@@ -475,7 +490,7 @@ class CodeGenerator:
                 i += 1
         
         self.indentation -= 1
-        self.add_line(f"}} {struct_name};")
+        self.add_line(f"}};")
         self.add_line("")
         
         return end_index + 1
@@ -766,17 +781,6 @@ class CodeGenerator:
         }
         return default_values.get(datatype, '0')
     
-    def _is_variable_declaration(self, tokens, index):
-        if index < len(tokens):
-            # Check for fixed (const) modifier
-            if tokens[index][0] == 'fixed' and index + 1 < len(tokens):
-                return self._is_variable_declaration(tokens, index + 1)
-                
-            if tokens[index][1] == 'datatype':
-                return True
-            if tokens[index][0] in ['int', 'decimal', 'letter', 'string', 'bool', 'void', 'empty']:
-                return True
-        return False
     
     def _is_increment_decrement(self, tokens, index):
         self.inc_dec = ['++', '--']
@@ -807,6 +811,20 @@ class CodeGenerator:
             
         return i + 1  # Skip past semicolon
     
+    def _is_variable_declaration(self, tokens, index):
+        """Check if tokens starting at index represent a variable declaration"""
+        if index < len(tokens):
+            # Check if it's a built-in data type
+            datatypes = ['int', 'string', 'float', 'decimal', 'letter', 'char', 'bool', 'empty']
+            if tokens[index][0] in datatypes:
+                return True
+                
+            # Check if it's a unit (struct) declaration
+            if index + 1 < len(tokens):
+                if tokens[index][0] == 'unit' and tokens[index+1][1] == 'identifier':
+                    return True
+        return False
+    
     def _process_variable_declaration(self, tokens, index):
         is_const = False
         start_index = index
@@ -815,7 +833,109 @@ class CodeGenerator:
         if tokens[index][0] == 'fixed':
             is_const = True
             index += 1
+        
+        # Check if it's a struct instantiation
+        if tokens[index][0] == 'unit' and index + 1 < len(tokens):
+            self.debug(f"Processing unit instance at index {index}: {tokens[index+1][0]}")
+            struct_type = tokens[index+1][0]
+            index += 2  # Skip 'unit' and struct type
             
+            # Process struct variable(s)
+            i = index
+            variables = []
+            
+            while i < len(tokens) and tokens[i][0] != ';':
+                self.debug(f"Processing token at i={i}: {tokens[i][0]}")
+                
+                if tokens[i][1] == 'identifier':
+                    var_name = tokens[i][0]
+                    self.debug(f"Found variable name: {var_name}")
+                    
+                    # Add to our variable tracking
+                    if self.current_scope not in self.variable_types:
+                        self.variable_types[self.current_scope] = {}
+                    self.variable_types[self.current_scope][var_name] = f"struct_{struct_type}"
+                    
+                    # Check for initialization
+                    if i + 1 < len(tokens) and tokens[i + 1][0] == '=':
+                        self.debug(f"Found initialization for {var_name}")
+                        i += 2  # Skip past '='
+                        
+                        # Initialize with struct literal
+                        if i < len(tokens) and tokens[i][0] == '{':
+                            self.debug(f"Found struct literal initialization")
+                            i += 1  # Skip '{'
+                            init_values = []
+                            
+                            # Collect all values until closing brace
+                            brace_level = 1
+                            while i < len(tokens) and brace_level > 0:
+                                if tokens[i][0] == '{':
+                                    brace_level += 1
+                                elif tokens[i][0] == '}':
+                                    brace_level -= 1
+                                    if brace_level == 0:
+                                        break
+                                    
+                                if tokens[i][0] == ',':
+                                    i += 1  # Skip comma
+                                    continue
+                                    
+                                # Collect the value expression
+                                expr_tokens = []
+                                while i < len(tokens) and tokens[i][0] != ',' and tokens[i][0] != '}':
+                                    expr_tokens.append(tokens[i][0])
+                                    i += 1
+                                    
+                                if expr_tokens:
+                                    init_values.append(self._format_expression(expr_tokens))
+                            
+                            # Skip closing brace
+                            if i < len(tokens) and tokens[i][0] == '}':
+                                i += 1
+                            
+                            # Format the struct initialization with proper C syntax
+                            variables.append(f"{var_name} = (struct {struct_type}){{" + ", ".join(init_values) + "}")
+                        else:
+                            # Handle other initialization forms if needed
+                            self.debug("No struct literal found after =, skipping")
+                            variables.append(var_name)
+                            i += 1
+                    else:
+                        # Default initialization for struct
+                        self.debug(f"No initialization for {var_name}")
+                        variables.append(var_name)
+                        i += 1
+                    
+                    # Move past comma if present
+                    if i < len(tokens) and tokens[i][0] == ',':
+                        self.debug("Found comma, skipping")
+                        i += 1
+                else:
+                    self.debug(f"Skipping non-identifier token: {tokens[i][0]}")
+                    i += 1
+                    
+                # Safety check to prevent infinite loop
+                if i >= len(tokens):
+                    self.debug("Reached end of tokens")
+                    break
+            
+            # Build the complete declaration
+            declaration = f"struct {struct_type} " + ", ".join(variables)
+            self.debug(f"Generated struct declaration: {declaration}")
+            self.add_line(f"{declaration};")
+            
+            # Skip past the semicolon
+            while i < len(tokens) and tokens[i][0] != ';':
+                i += 1
+                
+            # Safety check to ensure we return a valid index
+            if i < len(tokens):
+                return i + 1  # Skip past semicolon
+            else:
+                return len(tokens)
+                
+        # Standard variable declaration (existing code)
         datatype = tokens[index][0]
         mapped_datatype = self._map_datatype(datatype)
         self.debug(f"Processing variable declaration of type {mapped_datatype}")
@@ -983,7 +1103,12 @@ class CodeGenerator:
                     j += 1
                     
                 # Check if next token after closing bracket is '='
-                if j < len(tokens) and tokens[j][0] == '=':
+                if j < len(tokens) and tokens[j][0] in self.assignment_op:
+                    return True
+                    
+            # Check for struct member assignment
+            if tokens[index][1] == 'identifier' and tokens[index + 1][0] == '.' and index + 3 < len(tokens):
+                if tokens[index + 3][0] in self.assignment_op:
                     return True
         return False
     
@@ -992,8 +1117,66 @@ class CodeGenerator:
         var_type = self.variable_types.get(self.current_scope, {}).get(variable, "unknown")
         array_indices = []
         assignment_op = '='  # Default
-
+        
         i = index + 1
+
+        # Handle struct member access
+        if i < len(tokens) and tokens[i][0] == '.':
+            struct_member = tokens[i+1][0]
+            i += 2  # Skip '.' and member name
+            
+            # Get the assignment operator
+            if i < len(tokens):
+                assignment_op = tokens[i][0]
+                i += 1  # Move past assignment operator
+            
+            # Determine the struct type and find its definition
+            struct_type = var_type.replace("struct_", "")
+            member_type = None
+            
+            # Look up the member type from our struct definitions
+            if struct_type in self.struct_definitions and struct_member in self.struct_definitions[struct_type]:
+                member_type = self.struct_definitions[struct_type][struct_member]
+                self.debug(f"Found member type for {struct_type}.{struct_member}: {member_type}")
+            else:
+                self.debug(f"Could not find member type for {struct_type}.{struct_member}")
+                # Default to string if we can't determine the type
+                member_type = "string"
+            
+            # --- Handle struct member assignment with reads() ---
+            if i < len(tokens) and tokens[i][0] == 'reads' and tokens[i+1][0] == '(' and tokens[i+2][0] == ')':
+                self.add_line('printf("\\n");')  # Line for newline before input
+                
+                # Handle based on member type
+                if member_type == "int":
+                    self.add_line(f"{variable}.{struct_member} = read_int();")
+                elif member_type == "float" or member_type == "decimal":
+                    self.add_line(f"{variable}.{struct_member} = read_decimal();")
+                elif member_type == "char" or member_type == "letter":
+                    self.add_line(f"{variable}.{struct_member} = read_letter();")
+                elif member_type == "bool":
+                    self.add_line(f"{variable}.{struct_member} = read_bool();")
+                else:
+                    self.add_line(f"{variable}.{struct_member} = read_string();")
+                
+                # Skip past reads() and semicolon
+                i += 3
+                while i < len(tokens) and tokens[i][0] != ';':
+                    i += 1
+                return i + 1  # Skip past semicolon
+            
+            # --- Regular struct member assignment ---
+            expr_tokens = []
+            while i < len(tokens) and tokens[i][0] != ';':
+                expr_tokens.append(tokens[i][0])
+                i += 1
+            
+            expr_str = self._format_expression(expr_tokens)
+            self.add_line(f"{variable}.{struct_member} {assignment_op} {expr_str};")
+            
+            return i + 1  # Skip past semicolon
+
+
         if i < len(tokens) and tokens[i][0] == '[':
             # Process array indices
             while i < len(tokens) and tokens[i][0] == '[':
@@ -1135,8 +1318,73 @@ class CodeGenerator:
             i += 1
         
         self.debug(f"Display expression tokens: {expr_tokens}")
+
+        # Handle struct member access for display
+        if len(expr_tokens) >= 3 and expr_tokens[1] == '.':
+            struct_var = expr_tokens[0]
+            struct_member = expr_tokens[2]
+            
+            # Check if we're dealing with a struct
+            if struct_var in self.variable_types.get(self.current_scope, {}) and self.variable_types[self.current_scope][struct_var].startswith("struct_"):
+                # Extract the struct type
+                struct_type = self.variable_types[self.current_scope][struct_var].replace("struct_", "")
+                member_type = None
+                
+                # Look up the member type from our struct definitions
+                if struct_type in self.struct_definitions and struct_member in self.struct_definitions[struct_type]:
+                    member_type = self.struct_definitions[struct_type][struct_member]
+                    self.debug(f"Found member type for display: {struct_type}.{struct_member}: {member_type}")
+                else:
+                    self.debug(f"Could not find member type for display: {struct_type}.{struct_member}")
+                    # Default to string if we can't determine the type
+                    member_type = "string"
+                
+                # Handle different member types
+                if len(expr_tokens) >= 5 and expr_tokens[3] == '+':
+                    # Handle struct member with concatenation (like car1.year + "\n")
+                    # Generate separate printf statements for each segment
+                    
+                    # First segment (struct member)
+                    if member_type == "int":
+                        self.add_line(f"printf(\"%d\", {struct_var}.{struct_member});")
+                    elif member_type == "float" or member_type == "decimal":
+                        self.add_line(f"printf(\"%f\", {struct_var}.{struct_member});")
+                    elif member_type == "bool":
+                        self.add_line(f"printf(\"%s\", {struct_var}.{struct_member} ? \"true\" : \"false\");")
+                    elif member_type == "char" or member_type == "letter":
+                        self.add_line(f"printf(\"%c\", {struct_var}.{struct_member});")
+                    else:
+                        self.add_line(f"printf(\"%s\", {struct_var}.{struct_member});")
+                    
+                    # Second segment (string literal)
+                    string_literal = expr_tokens[4]
+                    self.add_line(f"printf(\"%s\", {string_literal});")
+                    
+                    # Skip past closing parenthesis and find semicolon
+                    i += 1
+                    while i < len(tokens) and tokens[i][0] != ';':
+                        i += 1
+                    return i + 1  # Skip past semicolon
+                else:
+                    # Simple struct member display
+                    if member_type == "int":
+                        self.add_line(f"printf(\"%d\", {struct_var}.{struct_member});")
+                    elif member_type == "float" or member_type == "decimal":
+                        self.add_line(f"printf(\"%f\", {struct_var}.{struct_member});")
+                    elif member_type == "bool":
+                        self.add_line(f"printf(\"%s\", {struct_var}.{struct_member} ? \"true\" : \"false\");")
+                    elif member_type == "char" or member_type == "letter":
+                        self.add_line(f"printf(\"%c\", {struct_var}.{struct_member});")
+                    else:
+                        self.add_line(f"printf(\"%s\", {struct_var}.{struct_member});")
+                    
+                    # Skip past closing parenthesis and find semicolon
+                    i += 1
+                    while i < len(tokens) and tokens[i][0] != ';':
+                        i += 1
+                    return i + 1  # Skip past semicolon
         
-        # NEW BLOCK: Better array element handling
+        # Handle array element handling
         if len(expr_tokens) >= 3 and expr_tokens[0] in self.variable_types.get(self.current_scope, {}) and '[' in expr_tokens[1]:
             var_name = expr_tokens[0]
             var_base_type = self.variable_types[self.current_scope][var_name]
@@ -1196,7 +1444,7 @@ class CodeGenerator:
             if var_name in self.variable_types.get(self.current_scope, {}):
                 var_type = self.variable_types[self.current_scope][var_name]
                 if var_type == 'bool':
-                    self.add_line(f"printf(\"%s\", {var_name} ? \"true\" : \"false\");")  # Removed newline
+                    self.add_line(f"printf(\"%s\", {var_name} ? \"true\" : \"false\");")
                     # Skip past closing parenthesis and find semicolon
                     i += 1
                     while i < len(tokens) and tokens[i][0] != ';':
@@ -1268,26 +1516,30 @@ class CodeGenerator:
                     # Default for unknown types
                     self.add_line(f"printf(\"%s\", {segment_expr});")
             
-            # No newline at the end - removed
+            # Skip past closing parenthesis and find semicolon
+            i += 1
+            while i < len(tokens) and tokens[i][0] != ';':
+                i += 1
+            return i + 1  # Skip past semicolon
         else:
             # Check if we're displaying a single variable
             if len(expr_tokens) == 1 and expr_tokens[0] in self.variable_types.get(self.current_scope, {}):
                 var_type = self.variable_types[self.current_scope][expr_tokens[0]]
                 # Modify helper function calls to not add newlines
                 if var_type == 'int':
-                    self.add_line(f"printf(\"%d\", {expr_tokens[0]});")  # Using printf instead of display_int
+                    self.add_line(f"printf(\"%d\", {expr_tokens[0]});")
                 elif var_type == 'float' or var_type == 'decimal':
-                    self.add_line(f"printf(\"%f\", {expr_tokens[0]});")  # Using printf instead of display_float
+                    self.add_line(f"printf(\"%f\", {expr_tokens[0]});")
                 elif var_type == 'bool':
                     self.add_line(f"printf(\"%s\", {expr_tokens[0]} ? \"true\" : \"false\");")
                 elif var_type == 'char' or var_type == 'letter':
-                    self.add_line(f"printf(\"%c\", {expr_tokens[0]});")  # Using printf instead of display_char
+                    self.add_line(f"printf(\"%c\", {expr_tokens[0]});")
                 else:
-                    self.add_line(f"printf(\"%s\", {expr_tokens[0]});")  # Using printf instead of display
+                    self.add_line(f"printf(\"%s\", {expr_tokens[0]});")
             else:
                 # Simple display statement
                 expr_str = self._format_expression(expr_tokens)
-                self.add_line(f"printf(\"%s\", {expr_str});")  # Using printf instead of display
+                self.add_line(f"printf(\"%s\", {expr_str});")
         
         # Skip past closing parenthesis and find semicolon
         i += 1
