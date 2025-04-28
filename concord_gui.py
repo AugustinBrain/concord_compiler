@@ -291,6 +291,7 @@ class LexicalAnalyzerGUI(QMainWindow):
         self.terminal = QTextEdit(self)
         self.terminal.setFont(QFont("Courier New", 12))
         self.terminal.setReadOnly(True)
+        self.terminal.document().setMaximumBlockCount(5000)  # Increase line limit
         self.terminal.setStyleSheet("""
             QTextEdit {
                 background: #252526;
@@ -508,6 +509,11 @@ class LexicalAnalyzerGUI(QMainWindow):
     # Signal handler methods
     def update_terminal(self, text):
         self.terminal.append(text)
+        # Ensure cursor is at the end and visible
+        cursor = self.terminal.textCursor()
+        cursor.movePosition(QTextCursor.End)
+        self.terminal.setTextCursor(cursor)
+        self.terminal.ensureCursorVisible()
     
     def display_error(self, error_text):
         self.terminal.append(f"Error: {error_text}")
@@ -741,6 +747,9 @@ class LexicalAnalyzerGUI(QMainWindow):
                         else:
                             # Display regular output
                             self.output_signals.output_received.emit(line)
+
+                    # Process remaining events to keep UI responsive
+                    QApplication.processEvents()
                     
                     # Check if process has terminated
                     if self.code_process.poll() is not None:

@@ -926,22 +926,29 @@ class Semantic:
                     
                     # Validate that the index is an integer
                     idx_type = self.validate_expression()
-                    if idx_type != "int_literal":
+                    if idx_type != "int_literal" and idx_type != "user_input":
                         self.errors.append(f"⚠️ Semantic Error at (line {line}, column {column}): Array index must be an integer")
                         return "error"
                     
                     # For 2D arrays, handle the second dimension
-                    if symbol.dimension > 1:
-                        if self.tokens[self.index + 1][0] == "[":
-                            self.index += 1 # Move to 2nd index
-                            idx_type = self.validate_expression()
-                            if idx_type != "int_literal":
-                                self.errors.append(f"⚠️ Semantic Error at (line {line}, column {column}): Array index must be an integer")
-                                return "error"
+                    if symbol.dimension > 1 and self.tokens[self.index + 1][0] == "[":
+                        self.index += 1 # Move to 2nd index
+                        idx_type = self.validate_expression()
+                        if idx_type != "int_literal" and idx_type != "user_input":
+                            self.errors.append(f"⚠️ Semantic Error at (line {line}, column {column}): Array index must be an integer")
+                            return "error"
                         else:
                             # Error: Array variable used without indexing
-                            self.errors.append(f"⚠️ Semantic Error at (line {line}, column {column}): 2D Array variable '{lexeme}' missing index")
+                            if self.tokens[self.index][0] != "]":
+                                self.errors.append(f"⚠️ Semantic Error at (line {line}, column {column}): Missing closing bracket ']'")
+                                return "error"
+                            self.index += 1  # Move past closing bracket
+                    else:
+                        # Check for closing bracket for 1D array
+                        if self.tokens[self.index][0] != "]":
+                            self.errors.append(f"⚠️ Semantic Error at (line {line}, column {column}): Missing closing bracket ']'")
                             return "error"
+                        self.index += 1  # Move past closing bracket
                     
                     # Return the type of the array element
                     target_type = symbol.data_type
@@ -950,8 +957,9 @@ class Semantic:
                     self.errors.append(f"⚠️ Semantic Error at (line {line}, column {column}): Array variable '{lexeme}' must have index")
                     return "error"
 
-                # Return the type of the array element
+                # Set target_type for assignment check
                 target_type = symbol.data_type
+                value_type = type_mapping.get(target_type, target_type)
 
             elif symbol.symbol_type == "fixed_declaration":
                 # Error: Array variable used without indexing
@@ -1074,6 +1082,7 @@ class Semantic:
             assign_op = {'+=', '-=', '*=', '/=', '%=', '**='}
 
             if symbol.symbol_type != "function":
+
                 self.index += 1
                 if self.tokens[self.index][0] == "+=":
                     if target_type == "letter":
@@ -1262,7 +1271,7 @@ class Semantic:
                 elif op in ["==", "!="]:
                     # Equality operators can compare same types or numeric types
                     if left_type == right_type or (left_type in ["int_literal", "decimal_literal", "bool", "user_input", "string_literal", "letter_literal"] and 
-                                                  right_type in ["int_literal", "decimal_literal", "bool", "user_input", "string_literal", "letter_literal"]):
+                                                right_type in ["int_literal", "decimal_literal", "bool", "user_input", "string_literal", "letter_literal"]):
                         return "bool"
                     else:
                         #self.errors.append("E2")
@@ -1395,7 +1404,7 @@ class Semantic:
                 }
 
                 symbol = None
-                if lexeme in self.symbol_table.get(self.current_scope, {}):
+                if lexeme in self.symbol_table.get(self.current_scope, {}): # Check if lexeme exist
                     symbol = self.symbol_table[self.current_scope][lexeme]
 
                 elif lexeme in self.symbol_table.get("global", {}):
@@ -1409,12 +1418,21 @@ class Semantic:
                     if self.index < len(self.tokens):
                         self.index += 1  # Move past semicolon
                     return "error"
-
                 
-                # Handle array access
+                if self.index + 1 < len(self.tokens) and self.tokens[self.index + 1][0] == "[":
+                    # Check if variable is actually an array
+                    if symbol.dimension == 0:  # Not an array
+                        self.errors.append(f"⚠️ Semantic Error at (line {line}, column {column}): Variable '{lexeme}' is not an array")
+                        return "error"
+
+                # Handle array access - FIX HERE
                 if symbol.dimension > 0:  # Check if it's an array
-                    if self.tokens[self.index + 1][0] == "[":
-                        self.index += 2  # Move past identifier and first opening bracket
+                    # First increment past the identifier
+                    self.index += 1
+                    
+                    # Check if next token is a bracket
+                    if self.index < len(self.tokens) and self.tokens[self.index][0] == "[":
+                        self.index += 1  # Move past first opening bracket
                         
                         # Validate that the index is an integer
                         idx_type = self.validate_expression()
@@ -1430,34 +1448,31 @@ class Semantic:
                             return "error"
                         
                         # For 2D arrays, handle the second dimension
-                        if symbol.dimension > 1:
-                            if self.tokens[self.index + 1][0] == "[":
-                                self.index += 1 # Move to 2nd index
+                        if symbol.dimension > 1 and self.index < len(self.tokens):
+                            if self.tokens[self.index][0] == "[":
+                                self.index += 1  # Move past opening bracket
                                 idx_type = self.validate_expression()
                                 if idx_type != "int_literal" and idx_type != "user_input":
                                     self.errors.append(f"⚠️ Semantic Error at (line {line}, column {column}): Array index must be an integer")
                                     return "error"
                                 
-                                 # Check and consume the second closing bracket
+                                # Check and consume the second closing bracket
                                 if self.index < len(self.tokens) and self.tokens[self.index][0] == "]":
                                     self.index += 1  # Move past the second closing bracket
                                 else:
                                     self.errors.append(f"⚠️ Semantic Error at (line {line}, column {column}): Missing closing bracket ']'")
                                     return "error"
                             else:
-                                # Error: Array variable used without indexing
-                                self.errors.append(f"⚠️ Semantic Error at (line {line}, column {column}): 2D Array variable '{lexeme}' missing index")
+                                # Error: 2D Array variable used without second index
+                                self.errors.append(f"⚠️ Semantic Error at (line {line}, column {column}): 2D Array variable '{lexeme}' missing second index")
                                 return "error"
                         
-                            # Return the type of the array element
-                            operand_stack.append(type_mapping.get(symbol.data_type, symbol.data_type))
+                        # Push the type to stack
+                        operand_stack.append(type_mapping.get(symbol.data_type, symbol.data_type))
                     else:
                         # Error: Array variable used without indexing
                         self.errors.append(f"⚠️ Semantic Error at (line {line}, column {column}): Array variable '{lexeme}' must have index")
                         return "error"
-
-                    # Return the type of the array element
-                    operand_stack.append(type_mapping.get(symbol.data_type, symbol.data_type))
                 
                 elif symbol.symbol_type == "function":  # Is a function call
                     self.index += 1  # Move past function name
@@ -1470,7 +1485,7 @@ class Semantic:
                         
                         # Handle empty parameter list
                         if self.tokens[self.index][0] == ")":
-                              # Move past ')'
+                            self.index += 1  # Move past ')'
                             operand_stack.append(type_mapping.get(symbol.data_type, symbol.data_type))
                         else:
                             # Process parameters
@@ -1480,11 +1495,10 @@ class Semantic:
                                 received_params.append(param_type)
                                 param_count += 1
                                 
-                                
                                 current_token = self.tokens[self.index][0]
                                 
                                 if current_token == ")":
-                                    #self.index += 1  # Move past ')'
+                                    self.index += 1  # Move past ')'
                                     break
                                 elif current_token == ",":
                                     self.index += 1  # Move past comma to next parameter
@@ -1513,18 +1527,17 @@ class Semantic:
                                     )
                                     return "error"
 
+                        operand_stack.append(type_mapping.get(symbol.data_type, symbol.data_type))
                     else:
                         self.errors.append(f"⚠️ Semantic Error at (line {line}, column {column}): Expected '(argument/s)' after function name '{lexeme}'")
                         return "error"
-
-                    operand_stack.append(type_mapping.get(symbol.data_type, symbol.data_type))
 
                 elif symbol.symbol_type == "unit_variable":
                     # Get the unit type (stored in symbol's data_type)
                     unit_type = symbol.data_type
                     # Move to the dot operator
                     self.index += 1
-                    if self.tokens[self.index][0] != ".":
+                    if self.index < len(self.tokens) and self.tokens[self.index][0] != ".":
                         self.errors.append(
                             f"⚠️ Semantic Error at (line {line}, column {column}): Expected '.' after unit variable."
                         )
@@ -1556,7 +1569,7 @@ class Semantic:
                         return "error"
                     
                     # Move past the field name
-                    # self.index += 1
+                    self.index += 1
 
                     type_mapping = {
                         "int": "int_literal",
@@ -1570,6 +1583,7 @@ class Semantic:
                 else:
                     # Regular variable (not an array)
                     operand_stack.append(type_mapping.get(symbol.data_type, symbol.data_type))
+                    self.index += 1  # Move past identifier
                 
             
             elif token_type in {"int_literal", "decimal_literal", "true", "false", "letter_literal", "string_literal"}:
@@ -1578,9 +1592,11 @@ class Semantic:
                     operand_stack.append("bool")
                 else:
                     operand_stack.append(token_type)
+                self.index += 1  # Move past the literal
             
             elif token_type == "(":
                 operator_stack.append(token_type)
+                self.index += 1  # Move past opening parenthesis
             
             elif token_type == ")":
                 # Process all operators until the matching opening parenthesis
@@ -1590,6 +1606,7 @@ class Semantic:
                 # Remove the opening parenthesis
                 if operator_stack and operator_stack[-1] == "(":
                     operator_stack.pop()
+                    self.index += 1  # Move past closing parenthesis
                 elif entered_param is True:
                     break
                 else:
@@ -1615,22 +1632,25 @@ class Semantic:
                 else:
                     # Binary operators
                     while (operator_stack and operator_stack[-1] != "(" and 
-                           precedence.get(operator_stack[-1], 999) <= precedence.get(lexeme, 999)):
+                        precedence.get(operator_stack[-1], 999) <= precedence.get(lexeme, 999)):
                         apply_operator()
                     operator_stack.append(lexeme)
+                self.index += 1  # Move past the operator
             
-            elif token_type in {";", ",", "]", "{"}:
+            elif token_type in {";", ",", "{"}:
                 # End of expression reached
                 break
             
-            self.index += 1
+            else:
+                # Unrecognized token - move past it to avoid infinite loop
+                self.index += 1
         
         # Apply all remaining operators
         while operator_stack:
             op = operator_stack[-1]
             if op == "(":
-                self.errors.append(f"✅ No Semantic Errors Found.")
-                return "error"
+                operator_stack.pop()  # Just pop the unmatched parenthesis instead of reporting error
+                continue
             apply_operator()
         
         # Final result type should be on top of the operand stack

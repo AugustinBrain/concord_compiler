@@ -1868,6 +1868,7 @@ class CodeGenerator:
                     j += 1
             
             self.indentation -= 1
+            self.add_line("fflush(stdout);")
             self.add_line("}")
             
             return loop_block_end + 1
