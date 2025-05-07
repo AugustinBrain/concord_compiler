@@ -935,6 +935,8 @@ class CodeGenerator:
             else:
                 return len(tokens)
                 
+
+
         # Standard variable declaration (existing code)
         datatype = tokens[index][0]
         mapped_datatype = self._map_datatype(datatype)
@@ -944,6 +946,8 @@ class CodeGenerator:
         declaration = f"{'' if not is_const else 'const '}{mapped_datatype}"
         if mapped_datatype == "empty":
             declaration = "void"
+        if datatype == "string" and tokens[index + 2][0] == '[':
+            datatype = "string_arr"
             
         declaration += " "
         variables = []
@@ -1413,9 +1417,9 @@ class CodeGenerator:
                 elif var_base_type == 'letter' or var_base_type == 'char':
                     self.add_line(f"printf(\"%c\", {array_access});")
                 elif var_base_type == 'string':
-                    self.add_line(f"printf(\"%s\", {array_access});")
+                    self.add_line(f"printf(\"%s\", {array_access}); //st")
                 else:
-                    self.add_line(f"printf(\"%s\", {array_access});")
+                    self.add_line(f"printf(\"%s\", {array_access}); //sy")
                 
                 # Second part - string literal or other expression
                 second_expr = expr_tokens[plus_index+1:]
@@ -1438,7 +1442,7 @@ class CodeGenerator:
                 elif second_type == "letter" or second_type == "char":
                     self.add_line(f"printf(\"%c\", {second_part});")
                 else:
-                    self.add_line(f"printf(\"%s\", {second_part});")
+                    self.add_line(f"printf(\"%s\", {second_part}); //sdf")
             else:
                 # No concatenation - handle as a single array access
                 array_access = self._format_expression(expr_tokens)
@@ -1453,9 +1457,9 @@ class CodeGenerator:
                 elif var_base_type == 'letter' or var_base_type == 'char':
                     self.add_line(f"printf(\"%c\", {array_access});")
                 elif var_base_type == 'string':
-                    self.add_line(f"printf(\"%s\", {array_access});")
+                    self.add_line(f"printf(\"%c\", {array_access}); //asd")
                 else:
-                    self.add_line(f"printf(\"%s\", {array_access});")
+                    self.add_line(f"printf(\"%s\", {array_access}); //as")
             
             # Skip past closing parenthesis and find semicolon
             i += 1

@@ -18,5 +18,11 @@
         "titleBar.inactiveBackground": "#29030399",
         "titleBar.inactiveForeground": "#e7e7e799"
     },
-    "peacock.color": "#290303"
+    "peacock.color": "#290303",
+    "folder-color.pathColors": [
+        {
+            "folderPath": "concord_compiler\\main.py\\",
+            "color": "foldercolorizer.color_0066ff"
+        }
+    ]
 }

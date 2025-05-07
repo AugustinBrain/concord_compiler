@@ -1,0 +1,645 @@
+import sys
+from PyQt5.QtWidgets import (
+    QApplication, QMainWindow, QTextEdit, QVBoxLayout, QPushButton, QLabel,
+    QWidget, QTableWidget, QTableWidgetItem, QHeaderView, QSplitter, QPlainTextEdit,
+    QHBoxLayout, QLineEdit, QInputDialog, QStatusBar, QToolBar, QAction, QSizePolicy
+)
+from PyQt5.QtGui import QColor, QPainter, QFont, QTextFormat, QSyntaxHighlighter, QTextCharFormat, QTextCursor, QIcon
+from PyQt5.QtCore import Qt, QRect, QSize, QRegExp, QEvent, QTimer, QEventLoop, pyqtSignal, QObject, QMetaType
+
+
+import threading
+import tokenizer
+import CFG
+import semantic  # Import your parser module
+import re
+import code_gen
+import subprocess
+import os
+import tempfile
+
+# Register QTextCursor for cross-thread signal/slot operations
+QMetaType.type("QTextCursor")
+
+class SyntaxHighlighter(QSyntaxHighlighter):
+    
+class LineNumberArea(QWidget):
+
+class CodeEditor(QPlainTextEdit):
+
+# Create a custom signals class to safely communicate between threads and the UI
+class OutputSignals(QObject):
+    output_received = pyqtSignal(str)
+    error_received = pyqtSignal(str)
+    input_requested = pyqtSignal(str)
+    program_finished = pyqtSignal(int)
+
+class LexicalAnalyzerGUI(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.init_ui()
+        self.analyzer = tokenizer.Tokenizer()
+        self.tokens = []
+        self.code_gen = code_gen.CodeGenerator()
+        self.input_mode = False
+        self.waiting_for_input = False
+        self.code_process = None
+        
+        # Initialize signals for thread communication
+        self.output_signals = OutputSignals()
+        self.output_signals.output_received.connect(self.update_terminal)
+        self.output_signals.error_received.connect(self.display_error)
+        self.output_signals.input_requested.connect(self.request_input)
+        self.output_signals.program_finished.connect(self.handle_program_finished)
+
+    def init_ui(self):
+        self.setWindowTitle("CONCORD")
+        self.setGeometry(100, 100, 1200, 800)
+        self.setStyleSheet("background-color: #202020;")
+
+        # Create toolbar for buttons at the top
+        self.toolbar = QToolBar("Main Toolbar")
+        self.toolbar.setMovable(False)
+        self.toolbar.setIconSize(QSize(16, 16))
+        self.toolbar.setStyleSheet("""
+            QToolBar {
+                background:#1c1c1c;
+                border: none;
+                padding: 10px;
+                spacing: 10px;
+            }
+            QToolButton {
+                color: white;
+                font-weight: bold;
+                border-radius: 3px;
+                padding: 5px 10px;
+            }
+            QToolButton:hover {
+                background-color: rgba(255, 255, 255, 0.1);
+            }
+        """)
+        self.addToolBar(self.toolbar)
+
+        # Create buttons instead of actions
+        self.analyze_button = QPushButton("▶ Lexical Analysis")
+        self.analyze_button.clicked.connect(self.lexical_analyzer)
+        self.analyze_button.setStyleSheet("""
+            background: #393939;
+            color: white;
+            font-weight: bold;
+            border-radius: 3px;
+            padding: 5px 10px;
+        """)
+        self.toolbar.addWidget(self.analyze_button)
+        
+        self.syntax_button = QPushButton("⚙ Syntax Analyzer")
+        self.syntax_button.clicked.connect(self.syntax_button_clicked)
+        self.syntax_button.setEnabled(False)
+        self.syntax_button.setStyleSheet("""
+            background: #393939;
+            color: white;
+            font-weight: bold;
+            border-radius: 3px;
+            padding: 5px 10px;
+        """)
+        self.toolbar.addWidget(self.syntax_button)
+        
+        self.semantic_button = QPushButton("📄 Semantic Analyzer")
+        self.semantic_button.clicked.connect(self.semantic_button_clicked)
+        self.semantic_button.setEnabled(False)
+        self.semantic_button.setStyleSheet("""
+            background: #393939;
+            color: white;
+            font-weight: bold;
+            border-radius: 3px;
+            padding: 5px 10px;
+        """)
+        self.toolbar.addWidget(self.semantic_button)
+
+        # Spacer to push next button (Run) to the right
+        spacer = QWidget()
+        spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        spacer.setStyleSheet("""
+            background: #1c1c1c;
+        """)
+        self.toolbar.addWidget(spacer)
+        
+        self.run_button = QPushButton("▶ Run")
+        self.run_button.clicked.connect(self.run_botton_clicked)
+        self.run_button.setStyleSheet("""
+            background: #254460;
+            color: white;
+            font-weight: bold;
+            border-radius: 3px;
+            padding: 5px 20px;
+            margin-right:2px;
+        """)
+        self.toolbar.addWidget(self.run_button)
+        
+        
+        # Add actions to toolbar
+        # self.toolbar.addAction(self.analyze_action)
+        # self.toolbar.addAction(self.syntax_action)
+        # self.toolbar.addAction(self.semantic_action)
+        # self.toolbar.addAction(self.run_action)
+
+        main_splitter = QSplitter(Qt.Horizontal)  # Main Splitter
+        editor_terminal_splitter = QSplitter(Qt.Vertical)  # Split Code Editor & Terminal
+
+        # Add a visible resizing indicator (handle)
+        editor_terminal_splitter.setStyleSheet("""
+            QSplitter::handle {
+                background: #2e2e2e; /* Dark gray for visibility */
+                height: 1px; /* Thinner VSCode-like handle */
+            }
+        """)
+
+        # Code Editor
+        self.code_editor = CodeEditor()
+        editor_terminal_splitter.addWidget(self.code_editor)  # Add editor to splitter
+
+        # Terminal
+        self.terminal = QTextEdit(self)
+        self.terminal.setFont(QFont("Consolas", 11))
+        self.terminal.setReadOnly(True)
+        self.terminal.document().setMaximumBlockCount(5000)  # Increase line limit
+        self.terminal.setStyleSheet("""
+            QTextEdit {
+                background: #202020;
+                color: #CCCCCC;
+                border: 1px solid #3C3C3C;
+                padding: 5px;
+                selection-background-color: #264F78;
+            }
+            QScrollBar:vertical {
+                background: #202020;
+                width: 12px;
+                margin: 0px;
+            }
+            QScrollBar::handle:vertical {
+                background: #424242;
+                min-height: 20px;
+                border-radius: 6px;
+            }
+            QScrollBar::handle:vertical:hover {
+                background: #616161;
+            }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                background: none;
+                border: none;
+                height: 0px;
+            }
+            QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+                background: none;
+            }
+        """)
+
+        terminal_label = QLabel("TERMINAL")
+        terminal_label.setStyleSheet("color: #CCCCCC; font-weight: bold; padding: 3px; font-size: 11px; background: #252526;")
+        
+        # Add Text Field below terminal
+        self.input_field = QLineEdit()
+        self.input_field.returnPressed.connect(self.submit_user_input)  # Allow Enter key submission
+        self.input_field.setFixedHeight(30)
+        self.input_field.setFont(QFont("Consolas", 11))
+        self.input_field.setStyleSheet("""
+            QLineEdit {
+                background: #202020;
+                color: #FFFFFF;
+                border: 1px solid #3C3C3C;
+                border-radius: 0px;
+                padding: 5px;
+                selection-background-color: #264F78;
+            }
+            QLineEdit:focus {
+                border: 1px solid #007ACC;
+            }
+        """)
+        self.input_field.setPlaceholderText("Enter input here...")
+        self.submit_button = QPushButton("Submit")
+        self.submit_button.clicked.connect(self.submit_user_input)
+        self.submit_button.setEnabled(False)  # Initially disabled
+        self.submit_button.setStyleSheet("""
+            QPushButton {
+                background: #0E639C;
+                color: white;
+                font-weight: bold;
+                border-radius: 2px;
+                padding: 5px 10px;
+                font-size: 11px;
+            }
+            QPushButton:hover {
+                background: #1177BB;
+            }
+            QPushButton:pressed {
+                background: #0D5086;
+            }
+            QPushButton:disabled {
+                background: #333333;
+                color: #666666;
+            }
+        """)
+
+        input_layout = QHBoxLayout()
+        input_layout.addWidget(self.input_field)
+        input_layout.addWidget(self.submit_button)
+        input_layout.setContentsMargins(0, 0, 0, 0)
+        input_layout.setSpacing(2)
+
+        terminal_container = QWidget()
+        terminal_layout = QVBoxLayout()
+        terminal_layout.addWidget(terminal_label)
+        terminal_layout.addWidget(self.terminal)
+        terminal_layout.addLayout(input_layout)  # Add the input field below terminal
+        terminal_layout.setContentsMargins(0, 0, 0, 0)
+        terminal_layout.setSpacing(1)
+        terminal_container.setLayout(terminal_layout)
+
+        editor_terminal_splitter.addWidget(terminal_container)  # Add Terminal below Editor
+
+        # Add Resizing Behavior
+        editor_terminal_splitter.setStretchFactor(0, 3)  # More space to the editor
+        editor_terminal_splitter.setStretchFactor(1, 1)  # Less space to the terminal
+        editor_terminal_splitter.setCollapsible(1, False)  # Prevent terminal from disappearing
+
+        main_splitter.addWidget(editor_terminal_splitter)  # Add editor & terminal to main splitter
+
+        # Result Table
+        self.result_table = QTableWidget(self)
+        self.result_table.setColumnCount(3)
+        self.result_table.setHorizontalHeaderLabels(["Lexeme", "Token", "Line"])
+        self.result_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.result_table.verticalHeader().setVisible(True)
+        self.result_table.setStyleSheet("""
+            QTableWidget {
+                background: #252526;
+                color: #D4D4D4;
+                border: none;
+                gridline-color: #444;
+                font-size: 11px;
+                font-family: 'Consolas';
+            }
+            QHeaderView::section {
+                background: #333;
+                color: white;
+                font-weight: bold;
+                padding: 6px;
+                border: none;
+            }
+            QTableWidget::item {
+                padding: 3px;
+            }
+            QTableWidget QTableCornerButton::section {  /* Style the top-left corner */
+                background: #333;
+                border: none;
+            }
+            QScrollBar:vertical {
+                background: #202020;
+                width: 12px;
+                margin: 0px;
+            }
+            QScrollBar::handle:vertical {
+                background: #424242;
+                min-height: 20px;
+                border-radius: 6px;
+            }
+            QScrollBar::handle:vertical:hover {
+                background: #616161;
+            }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                background: none;
+                border: none;
+                height: 0px;
+            }
+            QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+                background: none;
+            }
+        """)
+
+        main_splitter.addWidget(self.result_table)
+        main_splitter.setStretchFactor(0, 3)  # More space to code editor + terminal
+        main_splitter.setStretchFactor(1, 1)  # Less space to results table
+
+        # Create status bar (VSCode-like)
+        self.statusBar = QStatusBar()
+        self.statusBar.setStyleSheet("""
+            QStatusBar {
+                background: #054C7B;
+                color: white;
+            }
+        """)
+        self.setStatusBar(self.statusBar)
+        self.statusBar.showMessage("Ready")
+
+        # Set main widget
+        central_widget = QWidget()
+        main_layout = QVBoxLayout()
+        main_layout.addWidget(main_splitter)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        central_widget.setLayout(main_layout)
+        self.setCentralWidget(central_widget)
+
+    def create_button_action(self, text, icon_path=""):
+        action = QAction(text, self)
+        if icon_path:
+            action.setIcon(QIcon(icon_path))
+        
+        # Style the action button VSCode style
+        if "Lexical" in text:
+            action.setStyleSheet("""
+                background: #007ACC;
+                color: white;
+                padding: 5px 10px;
+                border-radius: 3px;
+            """)
+        elif "Syntax" in text:
+            action.setStyleSheet("""
+                background: #F55D3E;
+                color: white;
+                padding: 5px 10px;
+                border-radius: 3px;
+            """)
+        elif "Semantic" in text:
+            action.setStyleSheet("""
+                background: #4CAF50;
+                color: white;
+                padding: 5px 10px;
+                border-radius: 3px;
+            """)
+        elif "Run" in text:
+            action.setStyleSheet("""
+                background: #9C27B0;
+                color: white;
+                padding: 5px 10px;
+                border-radius: 3px;
+            """)
+        
+        return action
+    
+    # Signal handler methods
+    def update_terminal(self, text):
+        self.terminal.append(text)
+        # Ensure cursor is at the end and visible
+        cursor = self.terminal.textCursor()
+        cursor.movePosition(QTextCursor.End)
+        self.terminal.setTextCursor(cursor)
+        self.terminal.ensureCursorVisible()
+    
+    def display_error(self, error_text):
+        self.terminal.append(f"<span style='color:#FF6B6B;'>Error: {error_text}</span>")
+    
+    def request_input(self, prompt):
+        self.terminal.append(f"<span style='color:#4FC3F7;'>{prompt}</span>")
+        self.waiting_for_input = True
+        self.submit_button.setEnabled(True)
+        self.input_field.setFocus()
+    
+    def handle_program_finished(self, return_code):
+        if return_code == 0:
+            self.terminal.append("\n\n\n\n<span style='color:#81C784;'>✅ Program completed successfully.</span>")
+            self.statusBar.showMessage("Program execution completed", 3000)
+        else:
+            self.terminal.append(f"\n\n\n\n<span style='color:#81C784;'>✅ Program completed successfully.</span>")
+            self.statusBar.showMessage(f"Program execution completed", 3000)
+
+    def submit_user_input(self):
+        user_input = self.input_field.text().strip()
+        if not user_input:
+            return  # Do nothing if input is empty
+        
+        # Echo the input in the terminal
+        self.terminal.append(f"<span style='color:#FFCC80;'>> {user_input}</span>")
+        self.input_field.clear()
+        
+        # Send the input to the running process
+        if self.code_process and self.code_process.poll() is None:
+            try:
+                # Send the input with a newline
+                input_str = user_input + '\n'
+                self.code_process.stdin.write(input_str)
+                self.code_process.stdin.flush()
+                
+                self.submit_button.setEnabled(False)
+                self.waiting_for_input = False
+                
+            except Exception as e:
+                self.terminal.append(f"<span style='color:#FF6B6B;'>⚠ Failed to send input: {e}</span>")
+                import traceback
+                self.terminal.append(f"<span style='color:#FF6B6B;'>{traceback.format_exc()}</span>")
+
+    def lexical_analyzer(self):
+        self.terminal.clear()
+        self.analyzer.errors.clear()
+        self.tokens = []
+        self.statusBar.showMessage("Running lexical analysis...", 2000)
+
+        code = self.code_editor.toPlainText()
+        tokens, errors = self.analyzer.tokenize(code)
+        self.tokens = tokens
+
+        self.result_table.setRowCount(len(tokens))
+        for i, (lexeme, token, line, column) in enumerate(tokens):
+            self.result_table.setItem(i, 0, QTableWidgetItem(lexeme))
+            self.result_table.setItem(i, 1, QTableWidgetItem(token))
+            self.result_table.setItem(i, 2, QTableWidgetItem(str(line)))
+            
+        if errors:
+            self.terminal.setText("<span style='color:#FF6B6B;'>" + "<br>".join(errors) + "</span>")
+            self.syntax_button.setEnabled(False)  # Changed from self.syntax_action
+            self.semantic_button.setEnabled(False)  # Changed from self.semantic_action
+            self.statusBar.showMessage("Lexical analysis completed with errors", 3000)
+        else:
+            self.terminal.setText("<span style='color:#81C784;'>✅ No lexical errors found.</span>")
+            self.syntax_button.setEnabled(True)  # Changed from self.syntax_action
+            self.statusBar.showMessage("Lexical analysis completed successfully", 3000)
+
+    def syntax_button_clicked(self):
+        self.run_syntax_analysis()
+
+    def run_syntax_analysis(self):
+        self.terminal.clear()
+        self.statusBar.showMessage("Running syntax analysis...", 2000)
+
+        if not self.tokens:
+            self.terminal.setText("<span style='color:#FF6B6B;'>⚠ No tokens available. Please run lexical analysis first.</span>")
+            return
+        
+        parser = CFG.LL1Parser(CFG.cfg, CFG.parse_table, CFG.follow_set)
+        success, errors, parse_tree = parser.parse(self.tokens)
+        
+        if success:
+            self.terminal.setText("<span style='color:#81C784;'>✅ Syntax analysis completed successfully.</span>")
+            self.semantic_button.setEnabled(True)
+            self.statusBar.showMessage("Syntax analysis completed successfully", 3000)
+        else:
+            self.terminal.setText("<span style='color:#FF6B6B;'>" + "<br>".join(errors) + "</span>")
+            self.semantic_button.setEnabled(False)
+            self.statusBar.showMessage("Syntax analysis completed with errors", 3000)
+
+    def semantic_button_clicked(self):
+        self.run_semantic_analysis()
+
+    def run_semantic_analysis(self):
+        self.terminal.clear()
+        self.statusBar.showMessage("Running semantic analysis...", 2000)
+
+        sem = semantic.Semantic()
+        errors = sem.semantic_analyzer(self.tokens)
+        sem.print_symbol_table()
+        sem.print_errors()
+
+        if errors:
+            self.terminal.setText("<span style='color:#FF6B6B;'>" + "<br>".join(errors) + "</span>")
+            self.statusBar.showMessage("Semantic analysis completed with errors", 3000)
+        else:
+            self.terminal.setText("<span style='color:#81C784;'>✅ No Semantic errors found.</span>")
+            self.statusBar.showMessage("Semantic analysis completed successfully", 3000)
+
+    def run_botton_clicked(self):
+        self.terminal.clear()
+        self.statusBar.showMessage("Running full compilation and execution...", 2000)
+
+        # Step 1: Run Lexical Analysis
+        self.lexical_analyzer()
+
+        # Check for lexical errors
+        if self.analyzer.errors:
+            return  # Stop if there are lexical errors
+
+        # Step 2: Run Syntax Analysis
+        self.run_syntax_analysis()
+
+        # Check terminal output for syntax errors
+        if "Syntax analysis completed successfully" not in self.terminal.toPlainText():
+            return  # Stop if there are syntax errors
+
+        # Step 3: Run Semantic Analysis
+        self.run_semantic_analysis()
+
+        # Check terminal output for semantic errors
+        if "No Semantic errors found" not in self.terminal.toPlainText():
+            return  # Stop if there are semantic errors
+
+        # Step 4: Run Code Generation
+        self.run_code_generation()
+
+    def run_code_generation(self):
+        self.terminal.clear()
+        self.statusBar.showMessage("Generating and executing code...", 2000)
+
+        if not self.tokens:
+            self.terminal.setText("<span style='color:#FF6B6B;'>⚠ No tokens available for code generation.</span>")
+            return
+
+        # Initialize input handling attributes
+        self.waiting_for_input = False
+        self.code_process = None
+        
+        # Generate C code
+        generated_code = self.code_gen.generate_code(self.tokens)
+
+        generated_code = generated_code.replace("~", "-")
+        generated_code = generated_code.replace(" [ ", "[")
+        generated_code = generated_code.replace(" ]", "]")
+        generated_code = generated_code.replace(" ++", "++")
+        generated_code = generated_code.replace(" --", "--")
+        
+        # Fix variable names with asterisks
+        generated_code = generated_code.replace("*waiting*for_input", "waiting_for_input")
+        generated_code = generated_code.replace("*input*buffer", "input_buffer")
+        generated_code = generated_code.replace("*input*ready", "input_ready")
+        
+        # self.terminal.append("<span style='color:#BBDEFB;'>Compiling code...</span>")
+        print("Generated Code: " + generated_code)  # Debug: Print generated code
+        
+        try:
+            # Create temporary file for the C code
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".c", mode='w') as temp_c_file:
+                temp_c_file.write(generated_code)
+                c_file_path = temp_c_file.name
+
+            # Save a copy of the generated code for debugging
+            debug_file_path = os.path.join(tempfile.gettempdir(), "last_generated_code.c")
+            with open(debug_file_path, 'w') as debug_file:
+                debug_file.write(generated_code)
+            
+            # Output binary path
+            binary_path = c_file_path.replace(".c", "") + ".exe"
+
+            # Compile the C code
+            compile_process = subprocess.run(["gcc", c_file_path, "-o", binary_path],
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE,
+                                        text=True)
+
+            if compile_process.returncode != 0:
+                self.terminal.setText("<span style='color:#FF6B6B;'>❌ Compilation failed:</span>\n" + compile_process.stderr)
+                self.statusBar.showMessage("Compilation failed", 3000)
+                return
+            
+            self.statusBar.showMessage("Running program...", 3000)
+            
+            # Run the compiled program with piped I/O
+            self.code_process = subprocess.Popen(
+                [binary_path],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                bufsize=1,
+                universal_newlines=True
+            )
+
+            # Create a continuous loop to read output in a separate thread
+            # But use signals to communicate with the UI instead of directly updating UI elements
+            def stream_output():
+                if not self.code_process:
+                    return
+                    
+                # Use readline instead of reading character by character
+                for line in iter(self.code_process.stdout.readline, ''):
+                    line = line.strip()
+                    if line:
+                        if "_waiting_for_input|" in line:
+                            # Extract prompt
+                            prompt = line.split("|")[1] if "|" in line else "Enter input:"
+                            self.output_signals.input_requested.emit(prompt)
+                        else:
+                            # Display regular output
+                            self.output_signals.output_received.emit(line)
+
+                    # Process remaining events to keep UI responsive
+                    QApplication.processEvents()
+                    
+                    # Check if process has terminated
+                    if self.code_process.poll() is not None:
+                        break
+                
+                # Check for error output
+                err_output = self.code_process.stderr.read()
+                if err_output:
+                    self.output_signals.error_received.emit(err_output.strip())
+                    
+                # Process completion message
+                return_code = self.code_process.returncode if self.code_process else -1
+                self.output_signals.program_finished.emit(return_code)
+
+            # Start the output thread
+            threading.Thread(target=stream_output, daemon=True).start()
+            
+        except Exception as e:
+            self.terminal.setText(f"<span style='color:#FF6B6B;'>⚠ Error running generated code:</span>\n{str(e)}")
+            import traceback
+            self.terminal.append(f"<span style='color:#FF6B6B;'>{traceback.format_exc()}</span>")
+            self.statusBar.showMessage("Error running program", 3000)
+            try:
+                os.remove(c_file_path)
+                os.remove(binary_path)
+            except Exception:
+                pass
+    
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    gui = LexicalAnalyzerGUI()
+    gui.show()
+    sys.exit(app.exec_())

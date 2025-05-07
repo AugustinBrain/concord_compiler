@@ -159,3 +159,32 @@ display("Car 3\n");
 display(car3.year + "\n");
 display(car3.name + "\n");
 }
+
+// Largest number
+main(){
+    int largest, i;
+    int x[10];
+    bool zero = true;
+    
+    display("Enter numbers, 0 to stop (MAX 10 numbers)\n");
+    while((i < 10) && (zero)){
+        i++;
+        display("#" + i + " - Enter a number: ");
+        i--;
+        x[i] = reads();
+        if(x[i] == 0){
+            zero = false;
+        }
+        i++;
+    }
+    
+    for(i = 0; i < 10; i++){
+        if(x[i] != 0){
+            display(x[i] + " ");
+        }
+        if(x[i] > largest){
+            largest = x[i];           
+        }
+    }
+    display("\n The largest number is " + largest);
+}
