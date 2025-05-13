@@ -1086,17 +1086,58 @@ class CodeGenerator:
                     
                 # Check for initialization
                 elif i + 1 < len(tokens) and tokens[i + 1][0] == '=':
-                    value = ""
                     i += 2  # Skip past '='
                     
-                    # Collect the entire expression until comma or semicolon
-                    expr_tokens = []
-                    while i < len(tokens) and tokens[i][0] != ',' and tokens[i][0] != ';':
-                        expr_tokens.append(tokens[i][0])
-                        i += 1
-                    
-                    value = self._format_expression(expr_tokens)
-                    variables.append(f"{var_name} = {value}")
+                    # Check if initialization is a function call
+                    if i < len(tokens) and tokens[i][1] == 'identifier' and i + 1 < len(tokens) and tokens[i + 1][0] == '(':
+                        # This is a function call initialization
+                        func_name = tokens[i][0]
+                        i += 1  # Move past function name
+                        
+                        # Process the function call arguments
+                        paren_level = 0
+                        args = []
+                        current_arg = []
+                        
+                        while i < len(tokens) and tokens[i][0] != ';':
+                            if tokens[i][0] == '(':
+                                paren_level += 1
+                                if paren_level == 1:  # Skip the opening parenthesis of the main function call
+                                    i += 1
+                                    continue
+                                else:
+                                    current_arg.append(tokens[i][0])
+                            elif tokens[i][0] == ')':
+                                paren_level -= 1
+                                if paren_level == 0:  # End of function call
+                                    if current_arg:
+                                        args.append(self._format_expression(current_arg))
+                                    i += 1
+                                    break
+                                else:
+                                    current_arg.append(tokens[i][0])
+                            elif tokens[i][0] == ',' and paren_level == 1:
+                                # Argument separator at the top level
+                                if current_arg:
+                                    args.append(self._format_expression(current_arg))
+                                    current_arg = []
+                            else:
+                                current_arg.append(tokens[i][0])
+                            
+                            i += 1
+                        
+                        # Format the function call
+                        func_call = f"{func_name}({', '.join(args)})"
+                        variables.append(f"{var_name} = {func_call}")
+                    else:
+                        # Standard expression initialization
+                        expr_tokens = []
+                        while i < len(tokens) and tokens[i][0] != ',' and tokens[i][0] != ';':
+                            expr_tokens.append(tokens[i][0])
+                            i += 1
+                        
+                        value = self._format_expression(expr_tokens)
+                        variables.append(f"{var_name} = {value}")
                     
                     # If we hit a comma, we need to move past it
                     if i < len(tokens) and tokens[i][0] == ',':
