@@ -973,6 +973,7 @@ class CodeGenerator:
         mapped_datatype = self._map_datatype(datatype)
         self.debug(f"Processing variable declaration of type {mapped_datatype}")
         
+
         # Build the declaration string
         declaration = f"{'' if not is_const else 'const '}{mapped_datatype}"
         if mapped_datatype == "empty":
@@ -1149,7 +1150,19 @@ class CodeGenerator:
     
     def _process_assignment(self, tokens, index):
         variable = tokens[index][0]
-        var_type = self.variable_types.get(self.current_scope, {}).get(variable, "unknown")
+        
+        # Helper function to check variable type in current scope or global scope
+        def get_variable_type(var_name):
+            # Check current scope first
+            if var_name in self.variable_types.get(self.current_scope, {}):
+                return self.variable_types[self.current_scope][var_name]
+            # Then check global scope
+            elif var_name in self.variable_types.get("global", {}):
+                return self.variable_types["global"][var_name]
+            # Not found in either scope
+            return "unknown"
+        
+        var_type = get_variable_type(variable)
         array_indices = []
         assignment_op = '='  # Default
         
@@ -1232,7 +1245,7 @@ class CodeGenerator:
                 assignment_op = tokens[i][0]
                 i += 1  # Move past assignment operator
 
-        # --- NEW BLOCK: Handle reads() ---
+        # --- ENHANCED BLOCK: Handle reads() with global scope support ---
         if i < len(tokens) and tokens[i][0] == 'reads' and tokens[i+1][0] == '(' and tokens[i+2][0] == ')':
             # Create array access or normal variable
             array_access = variable
@@ -1241,7 +1254,10 @@ class CodeGenerator:
 
             self.add_line('printf("\\n");')  # Line for newline before input
 
-            # Handle based on variable type
+            # Handle based on variable type from either scope
+            var_type = get_variable_type(variable)
+            self.debug(f"Using variable type '{var_type}' for reads() assignment to {variable}")
+            
             if var_type == 'int':
                 self.add_line(f"{array_access} = read_int();")
             elif var_type == 'double' or var_type == 'decimal':
@@ -1254,6 +1270,7 @@ class CodeGenerator:
                 self.add_line(f"{array_access} = read_bool();")
             else:
                 self.add_line(f"{array_access} = read_string();  // Unknown type, using default")
+                self.debug(f"Warning: Using default string reader for unknown type '{var_type}' of {variable}")
             
             # Skip past reads() and semicolon
             i += 3
@@ -1354,15 +1371,27 @@ class CodeGenerator:
         
         self.debug(f"Display expression tokens: {expr_tokens}")
 
+        # Helper function to check variable type in current scope or global scope
+        def get_variable_type(var_name):
+            # Check current scope first
+            if var_name in self.variable_types.get(self.current_scope, {}):
+                return self.variable_types[self.current_scope][var_name]
+            # Then check global scope
+            elif var_name in self.variable_types.get("global", {}):
+                return self.variable_types["global"][var_name]
+            # Not found in either scope
+            return None
+
         # Handle struct member access for display
         if len(expr_tokens) >= 3 and expr_tokens[1] == '.':
             struct_var = expr_tokens[0]
             struct_member = expr_tokens[2]
             
-            # Check if we're dealing with a struct
-            if struct_var in self.variable_types.get(self.current_scope, {}) and self.variable_types[self.current_scope][struct_var].startswith("struct_"):
+            # Check if we're dealing with a struct using helper function
+            var_type = get_variable_type(struct_var)
+            if var_type and var_type.startswith("struct_"):
                 # Extract the struct type
-                struct_type = self.variable_types[self.current_scope][struct_var].replace("struct_", "")
+                struct_type = var_type.replace("struct_", "")
                 member_type = None
                 
                 # Look up the member type from our struct definitions
@@ -1420,9 +1449,11 @@ class CodeGenerator:
                     return i + 1  # Skip past semicolon
         
         # Handle array element handling
-        if len(expr_tokens) >= 3 and expr_tokens[0] in self.variable_types.get(self.current_scope, {}) and '[' in expr_tokens[1]:
-            var_name = expr_tokens[0]
-            var_base_type = self.variable_types[self.current_scope][var_name]
+        var_name = expr_tokens[0] if expr_tokens else ""
+        var_type = get_variable_type(var_name)  # Use helper to check both scopes
+        
+        if len(expr_tokens) >= 3 and var_type and '[' in expr_tokens[1]:
+            var_base_type = var_type
             
             # Check if this is part of a concatenation expression
             plus_index = -1
@@ -1460,8 +1491,9 @@ class CodeGenerator:
                 second_type = "string"  # Default assumption for string literals
                 if len(second_expr) == 1:
                     second_var = second_expr[0]
-                    if second_var in self.variable_types.get(self.current_scope, {}):
-                        second_type = self.variable_types[self.current_scope][second_var]
+                    second_var_type = get_variable_type(second_var)  # Use helper function
+                    if second_var_type:
+                        second_type = second_var_type
                 
                 # Generate appropriate printf call for second part
                 if second_type == "int":
@@ -1488,7 +1520,7 @@ class CodeGenerator:
                 elif var_base_type == 'letter' or var_base_type == 'char':
                     self.add_line(f"printf(\"%c\", {array_access});")
                 elif var_base_type == 'string':
-                    self.add_line(f"printf(\"%c\", {array_access}); //asd")
+                    self.add_line(f"printf(\"%s\", {array_access}); //asd")
                 else:
                     self.add_line(f"printf(\"%s\", {array_access}); //as")
             
@@ -1501,6 +1533,7 @@ class CodeGenerator:
         # Handle string indexing - check if the expression is accessing a character of a string
         if len(expr_tokens) >= 3 and expr_tokens[1] == '[':
             var_name = expr_tokens[0]
+            var_type = get_variable_type(var_name)  # Use helper function
             
             # Find the closing bracket
             closing_bracket_idx = -1
@@ -1509,33 +1542,30 @@ class CodeGenerator:
                     closing_bracket_idx = j
                     break
             
-            if closing_bracket_idx != -1:
+            if closing_bracket_idx != -1 and var_type == 'string':
                 # Extract the index expression
                 index_expr = self._format_expression(expr_tokens[2:closing_bracket_idx+1])
                 index_expr = index_expr.replace(']', '')  # Remove closing bracket if present
                 
-                # Check if it's a string variable
-                if var_name in self.variable_types.get(self.current_scope, {}) and self.variable_types[self.current_scope][var_name] == 'string':
-                    self.add_line(f"printf(\"%c\", {var_name}[{index_expr}]);")
+                self.add_line(f"printf(\"%c\", {var_name}[{index_expr}]);")
                     
-                    # Skip past closing parenthesis and find semicolon
+                # Skip past closing parenthesis and find semicolon
+                i += 1
+                while i < len(tokens) and tokens[i][0] != ';':
                     i += 1
-                    while i < len(tokens) and tokens[i][0] != ';':
-                        i += 1
-                    return i + 1  # Skip past semicolon
+                return i + 1  # Skip past semicolon
         
         # Special case for boolean values
         if len(expr_tokens) == 1:
             var_name = expr_tokens[0]
-            if var_name in self.variable_types.get(self.current_scope, {}):
-                var_type = self.variable_types[self.current_scope][var_name]
-                if var_type == 'bool':
-                    self.add_line(f"printf(\"%s\", {var_name} ? \"true\" : \"false\");")
-                    # Skip past closing parenthesis and find semicolon
+            var_type = get_variable_type(var_name)  # Use helper function
+            if var_type == 'bool':
+                self.add_line(f"printf(\"%s\", {var_name} ? \"true\" : \"false\");")
+                # Skip past closing parenthesis and find semicolon
+                i += 1
+                while i < len(tokens) and tokens[i][0] != ';':
                     i += 1
-                    while i < len(tokens) and tokens[i][0] != ';':
-                        i += 1
-                    return i + 1  # Skip past semicolon
+                return i + 1  # Skip past semicolon
         
         # Handle string concatenation with '+' using multiple printf calls
         plus_indices = []
@@ -1565,8 +1595,9 @@ class CodeGenerator:
                 segment_type = "unknown"
                 if len(segment) == 1:
                     var_name = segment[0]
-                    if var_name in self.variable_types.get(self.current_scope, {}):
-                        segment_type = self.variable_types[self.current_scope][var_name]
+                    var_type = get_variable_type(var_name)  # Use helper function
+                    if var_type:
+                        segment_type = var_type
                     elif var_name.startswith('"') and var_name.endswith('"'):
                         segment_type = "string"
                     elif var_name.isdigit():
@@ -1578,8 +1609,9 @@ class CodeGenerator:
                     # Check for array access
                     elif '[' in var_name and ']' in var_name:
                         array_name = var_name.split('[')[0]
-                        if array_name in self.variable_types.get(self.current_scope, {}):
-                            segment_type = self.variable_types[self.current_scope][array_name].rstrip('[]')
+                        array_type = get_variable_type(array_name)  # Use helper function
+                        if array_type:
+                            segment_type = array_type.rstrip('[]')
                 
                 # Apply proper printf based on type
                 if segment_type == "int":
@@ -1609,21 +1641,28 @@ class CodeGenerator:
             return i + 1  # Skip past semicolon
         else:
             # Check if we're displaying a single variable
-            if len(expr_tokens) == 1 and expr_tokens[0] in self.variable_types.get(self.current_scope, {}):
-                var_type = self.variable_types[self.current_scope][expr_tokens[0]]
-                # Modify helper function calls to not add newlines
-                if var_type == 'int':
-                    self.add_line(f"printf(\"%d\", {expr_tokens[0]});")
-                elif var_type == 'double' or var_type == 'decimal':
-                    self.add_line(f"printf(\"%f\", {expr_tokens[0]});")
-                elif var_type == 'bool':
-                    self.add_line(f"printf(\"%s\", {expr_tokens[0]} ? \"true\" : \"false\");")
-                elif var_type == 'char' or var_type == 'letter':
-                    self.add_line(f"printf(\"%c\", {expr_tokens[0]});")
+            if len(expr_tokens) == 1:
+                var_name = expr_tokens[0]
+                var_type = get_variable_type(var_name)  # Use helper function
+                
+                if var_type:
+                    # Modify helper function calls to not add newlines
+                    if var_type == 'int':
+                        self.add_line(f"printf(\"%d\", {expr_tokens[0]});")
+                    elif var_type == 'double' or var_type == 'decimal':
+                        self.add_line(f"printf(\"%f\", {expr_tokens[0]});")
+                    elif var_type == 'bool':
+                        self.add_line(f"printf(\"%s\", {expr_tokens[0]} ? \"true\" : \"false\");")
+                    elif var_type == 'char' or var_type == 'letter':
+                        self.add_line(f"printf(\"%c\", {expr_tokens[0]});")
+                    else:
+                        self.add_line(f"printf(\"%s\", {expr_tokens[0]});")
                 else:
-                    self.add_line(f"printf(\"%s\", {expr_tokens[0]});")
+                    # Simple display statement - no variable type found
+                    expr_str = self._format_expression(expr_tokens)
+                    self.add_line(f"printf(\"%s\", {expr_str});")
             else:
-                # Simple display statement
+                # Complex expression or string literal
                 expr_str = self._format_expression(expr_tokens)
                 self.add_line(f"printf(\"%s\", {expr_str});")
         
