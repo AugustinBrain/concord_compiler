@@ -116,9 +116,9 @@ class CodeGenerator:
         self.add_line("}")
         self.add_line("")
         
-        # Helper function for displaying floats
-        self.add_line("// Helper function for displaying floats")
-        self.add_line("void display_float(float value) {")
+        # Helper function for displaying doubles
+        self.add_line("// Helper function for displaying doubles")
+        self.add_line("void display_double(double value) {")
         self.indentation += 1
         self.add_line("printf(\"%f\\n\", value);")
         self.indentation -= 1
@@ -223,19 +223,50 @@ class CodeGenerator:
         self.add_line("}")
         self.add_line("")
         
-        # Helper function for reading decimal input
-        self.add_line("// Helper function for reading float input")
-        self.add_line("float read_decimal() {")
+        # Helper function for reading decimal input with error handling
+        self.add_line("// Helper function for reading double input")
+        self.add_line("double read_decimal() {")
         self.indentation += 1
-        self.add_line("printf(\"_waiting_for_input|Enter a decimal: \\n\");")
+        self.add_line("double value = 0.0;")
+        self.add_line("int valid_input = 0;")
+        self.add_line("char buffer[1024];")
+        self.add_line("")
+        self.add_line("while (!valid_input) {")
+        self.indentation += 1
+        self.add_line("printf(\"_waiting_for_input|\\n\");")
         self.add_line("fflush(stdout);")
         self.add_line("")
-        self.add_line("float value;")
-        self.add_line("scanf(\"%f\", &value);")
+        self.add_line("if (fgets(buffer, sizeof(buffer), stdin) == NULL) {")
+        self.indentation += 1
+        self.add_line("printf(\"...\\n\");")
+        self.add_line("continue;")
+        self.indentation -= 1
+        self.add_line("}")
         self.add_line("")
-        self.add_line("// Clear input buffer")
-        self.add_line("int c;")
-        self.add_line("while ((c = getchar()) != '\\n' && c != EOF);")
+
+        self.add_line("// Handle ~ as negative sign")
+        self.add_line("if (buffer[0] == '~') {")
+        self.indentation += 1
+        self.add_line("buffer[0] = '-';")
+        self.indentation -= 1
+        self.add_line("}")
+        self.add_line("")
+
+        self.add_line("// Check if input is a valid decimal")
+        self.add_line("char* endptr;")
+        self.add_line("value = strtof(buffer, &endptr);")
+        self.add_line("if (*endptr != '\\n' && *endptr != '\\0') {")
+        self.indentation += 1
+        self.add_line("printf(\"Invalid input. Please enter a valid decimal number.\\n\");")
+        self.add_line("fflush(stdout);")
+        self.indentation -= 1
+        self.add_line("} else {")
+        self.indentation += 1
+        self.add_line("valid_input = 1;")
+        self.indentation -= 1
+        self.add_line("}")
+        self.indentation -= 1
+        self.add_line("}")
         self.add_line("")
         self.add_line("return value;")
         self.indentation -= 1
@@ -757,7 +788,7 @@ class CodeGenerator:
         """Map custom language datatypes to C datatypes"""
         mapping = {
             'int': 'int',
-            'decimal': 'float',
+            'decimal': 'double',
             'letter': 'char',
             'string': 'char*',
             'bool': 'bool',
@@ -772,7 +803,7 @@ class CodeGenerator:
         default_values = {
             'int': '0',
             'decimal': '0.0',
-            'float': '0.0',
+            'double': '0.0',
             'letter': "' '",  # Empty char
             'char': "''",    # Empty char
             'string': "\"\"", # Empty string
@@ -815,7 +846,7 @@ class CodeGenerator:
         """Check if tokens starting at index represent a variable declaration"""
         if index < len(tokens):
             # Check if it's a built-in data type
-            datatypes = ['int', 'string', 'float', 'decimal', 'letter', 'char', 'bool', 'empty']
+            datatypes = ['int', 'string', 'double', 'decimal', 'letter', 'char', 'bool', 'empty']
             if tokens[index][0] in datatypes:
                 return True
                 
@@ -1154,7 +1185,7 @@ class CodeGenerator:
                 # Handle based on member type
                 if member_type == "int":
                     self.add_line(f"{variable}.{struct_member} = read_int();")
-                elif member_type == "float" or member_type == "decimal":
+                elif member_type == "double" or member_type == "decimal":
                     self.add_line(f"{variable}.{struct_member} = read_decimal();")
                 elif member_type == "char" or member_type == "letter":
                     self.add_line(f"{variable}.{struct_member} = read_letter();")
@@ -1213,7 +1244,7 @@ class CodeGenerator:
             # Handle based on variable type
             if var_type == 'int':
                 self.add_line(f"{array_access} = read_int();")
-            elif var_type == 'float' or var_type == 'decimal':
+            elif var_type == 'double' or var_type == 'decimal':
                 self.add_line(f"{array_access} = read_decimal();")
             elif var_type == 'char' or var_type == 'letter':
                 self.add_line(f"{array_access} = read_letter();")
@@ -1351,7 +1382,7 @@ class CodeGenerator:
                     # First segment (struct member)
                     if member_type == "int":
                         self.add_line(f"printf(\"%d\", {struct_var}.{struct_member});")
-                    elif member_type == "float" or member_type == "decimal":
+                    elif member_type == "double" or member_type == "decimal":
                         self.add_line(f"printf(\"%f\", {struct_var}.{struct_member});")
                     elif member_type == "bool":
                         self.add_line(f"printf(\"%s\", {struct_var}.{struct_member} ? \"true\" : \"false\");")
@@ -1373,7 +1404,7 @@ class CodeGenerator:
                     # Simple struct member display
                     if member_type == "int":
                         self.add_line(f"printf(\"%d\", {struct_var}.{struct_member});")
-                    elif member_type == "float" or member_type == "decimal":
+                    elif member_type == "double" or member_type == "decimal":
                         self.add_line(f"printf(\"%f\", {struct_var}.{struct_member});")
                     elif member_type == "bool":
                         self.add_line(f"printf(\"%s\", {struct_var}.{struct_member} ? \"true\" : \"false\");")
@@ -1410,7 +1441,7 @@ class CodeGenerator:
                 # Use appropriate printf format based on the element type
                 if var_base_type == 'int':
                     self.add_line(f"printf(\"%d\", {array_access});")
-                elif var_base_type == 'decimal' or var_base_type == 'float':
+                elif var_base_type == 'decimal' or var_base_type == 'double':
                     self.add_line(f"printf(\"%f\", {array_access});")
                 elif var_base_type == 'bool':
                     self.add_line(f"printf(\"%s\", {array_access} ? \"true\" : \"false\");")
@@ -1435,7 +1466,7 @@ class CodeGenerator:
                 # Generate appropriate printf call for second part
                 if second_type == "int":
                     self.add_line(f"printf(\"%d\", {second_part});")
-                elif second_type == "decimal" or second_type == "float":
+                elif second_type == "decimal" or second_type == "double":
                     self.add_line(f"printf(\"%f\", {second_part});")
                 elif second_type == "bool":
                     self.add_line(f"printf(\"%s\", {second_part} ? \"true\" : \"false\");")
@@ -1450,7 +1481,7 @@ class CodeGenerator:
                 # Use appropriate printf format based on the element type
                 if var_base_type == 'int':
                     self.add_line(f"printf(\"%d\", {array_access});")
-                elif var_base_type == 'decimal' or var_base_type == 'float':
+                elif var_base_type == 'decimal' or var_base_type == 'double':
                     self.add_line(f"printf(\"%f\", {array_access});")
                 elif var_base_type == 'bool':
                     self.add_line(f"printf(\"%s\", {array_access} ? \"true\" : \"false\");")
@@ -1553,7 +1584,7 @@ class CodeGenerator:
                 # Apply proper printf based on type
                 if segment_type == "int":
                     self.add_line(f"printf(\"%d\", {segment_expr});")
-                elif segment_type == "decimal" or segment_type == "float":
+                elif segment_type == "decimal" or segment_type == "double":
                     self.add_line(f"printf(\"%f\", {segment_expr});")
                 elif segment_type == "letter" or segment_type == "char":
                     self.add_line(f"printf(\"%c\", {segment_expr});")
@@ -1583,7 +1614,7 @@ class CodeGenerator:
                 # Modify helper function calls to not add newlines
                 if var_type == 'int':
                     self.add_line(f"printf(\"%d\", {expr_tokens[0]});")
-                elif var_type == 'float' or var_type == 'decimal':
+                elif var_type == 'double' or var_type == 'decimal':
                     self.add_line(f"printf(\"%f\", {expr_tokens[0]});")
                 elif var_type == 'bool':
                     self.add_line(f"printf(\"%s\", {expr_tokens[0]} ? \"true\" : \"false\");")

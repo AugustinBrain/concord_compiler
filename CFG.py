@@ -40,7 +40,7 @@ cfg = {
     "<variable_tail>": [
         [";"],
         [",", "identifier", "<variable_tail>"],
-        ["=", "<assign_val>", "<initial_tail>"]],
+        ["=", "<expression>", "<initial_tail>"]],
 
     "<initial_tail>": [
         [";"],
@@ -139,16 +139,13 @@ cfg = {
     "<statement_id_tail>": [
         ["(", "<argument_list>", ")",";"],
         ["<assignment_op>", "<assign_val>", ";"],
-        ["[", "<arr_index>", "]", "<access_arr_tail>", "<assignment_op>", "<assign_val>", ";"],
+        ["[", "<arithmetic_exp>", "]", "<access_arr_tail>", "<assignment_op>", "<assign_val>", ";"],
         [".", "identifier", "<assignment_op>", "<assign_val>", ";"],
         ["<inc_dec_operator>", ";"]],
 
     "<access_arr_tail>": [
-        ["[", "<arr_index>", "]"],
+        ["[", "<arithmetic_exp>", "]"],
         ["λ"]],
-
-    "<arr_index>": [
-        ["<arithmetic_exp>"]],
 
     "<inc_dec_operator>": [
         ["++"],
@@ -221,7 +218,7 @@ cfg = {
 
     "<value_id_tail>": [
         ["(", "<argument_list>", ")"],
-        ["[", "<arr_index>", "]", "<access_arr_tail>"],
+        ["[", "<arithmetic_exp>", "]", "<access_arr_tail>"],
         [".", "identifier"],
         ["λ"]],
 
@@ -588,10 +585,6 @@ class LL1Parser:
 # parser = LL1Parser(cfg, parse_table, follow_set)
 # parser.parse(tokens)
 
-
-
-
-
 # for non_terminal, productions in cfg.items():
 #     for i, item in enumerate(productions):
 #         print(f"-{productions[i]}-")
@@ -610,7 +603,7 @@ class LL1Parser:
 #     print("\nPredict Sets:")
 #     for (non_terminal, production), predict in predict_set.items():
 #         production_str = " ".join(production)
-#         print(f"{predict}")
+#         print(f"First({production_str})=")
 
 # display_predict_sets(predict_set)
 

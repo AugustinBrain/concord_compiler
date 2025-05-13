@@ -342,24 +342,37 @@ class Semantic:
         dimension = 0
         sizes = []
 
-        self.index += 1 # After [ -> int_literal or ]
-        if self.tokens[self.index][1] == "int_literal": # [2 <-
-            if int(self.tokens[self.index][0]) > 0:
-                sizes.append(int(self.tokens[self.index][0]))
-                self.index += 1 # [2] <-
+        self.index += 1  # After [ -> int_literal or ]
+        if self.tokens[self.index][1] == "int_literal":  # [2 <-
+            token_value = self.tokens[self.index][0]
+            # Check if it's a negative value using tilde
+            if token_value.startswith('~'):
+                self.errors.append(f"⚠️ Semantic Error at (line {line}): Array size must be a positive integer")
+                self.index += 1  # [~1] <-
+            elif int(token_value) > 0:
+                sizes.append(int(token_value))
+                self.index += 1  # [2] <-
             else:
                 self.errors.append(f"⚠️ Semantic Error at (line {line}): Array size must be a positive integer")
-                self.index += 1 # [2] <-
+                self.index += 1  # [0] <-
         else:
             sizes = None
 
-        self.index += 1 # After ]
+        self.index += 1  # After ]
         dimension = 1
 
-        if self.tokens[self.index][1] == "[":
-            self.index += 1 # Move to [2][2 <-
-            sizes.append(int(self.tokens[self.index][0]))
-            self.index += 1 # [2][2] <-
+        if self.index < len(self.tokens) and self.tokens[self.index][1] == "[":
+            self.index += 1  # Move to [2][2 <-
+            token_value = self.tokens[self.index][0]
+            # Check for negative values in second dimension
+            if token_value.startswith('~'):
+                self.errors.append(f"⚠️ Semantic Error at (line {line}): Array size must be a positive integer")
+            elif int(token_value) > 0:
+                sizes.append(int(token_value))
+            else:
+                self.errors.append(f"⚠️ Semantic Error at (line {line}): Array size must be a positive integer")
+            
+            self.index += 1  # [2][2] <-
             dimension = 2
             self.index += 1
 

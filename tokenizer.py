@@ -5,6 +5,7 @@ class Tokenizer:
 
         self.alphabet = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
         self.number = set("0123456789")
+        self.digit = set("123456789")
         self.alphadig = self.alphabet | self.number
 
         self.asciicmnt = {chr(i) for i in range(32, 127) if chr(i) not in {'/', '*'}}
@@ -71,7 +72,7 @@ class Tokenizer:
             if char is None and state == 0:
                 break
 
-            #print(f"State: {state}, char: {repr(char)}, Lexeme: {repr(lexeme)}, Line: {line}, Column {column}")
+            print(f"State: {state}, char: {repr(char)}, Lexeme: {repr(lexeme)}, Line: {line}, Column {column}")
 
             match state:
                 case 0:
@@ -4150,7 +4151,7 @@ class Tokenizer:
                     state = 0
 
                 case 214:
-                    if char in self.number and char != 0:
+                    if char in self.digit and char != 0:
                         state = 215
                         lexeme += char
                     elif char == '0':
@@ -4371,7 +4372,7 @@ class Tokenizer:
                         if char is not None:
                             self.step_back()
                     elif char and char.isdigit():
-                        state = 231
+                        state = 239
                         lexeme += char
                     elif char == '.':
                         state = 241
@@ -4393,118 +4394,6 @@ class Tokenizer:
                         self.step_back()
                     state = 0
 
-                case 231:
-                    if char in self.digdelim:
-                        state = 232
-                        if char is not None:
-                            self.step_back()
-                    elif char and char.isdigit():
-                        state = 233
-                        lexeme += char
-                    elif char == '.':
-                        state = 241
-                        lexeme += char
-                    else:
-                        column -= 1
-                        if char is None:
-                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Missing Delimiter.")
-                        else:
-                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                            if char == '\n':
-                                column = 0
-                        state = 0
-
-                case 232:
-                    column -= 2
-                    tokens.append((lexeme, "int_literal", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
-                case 233:
-                    if char in self.digdelim:
-                        state = 234
-                        if char is not None:
-                            self.step_back()
-                    elif char and char.isdigit():
-                        state = 235
-                        lexeme += char
-                    elif char == '.':
-                        state = 241
-                        lexeme += char
-                    else:
-                        column -= 1
-                        if char is None:
-                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Missing Delimiter.")
-                        else:
-                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                            if char == '\n':
-                                column = 0
-                        state = 0
-
-                case 234:
-                    column -= 2
-                    tokens.append((lexeme, "int_literal", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
-                case 235:
-                    if char in self.digdelim:
-                        state = 236
-                        if char is not None:
-                            self.step_back()
-                    elif char and char.isdigit():
-                        state = 237
-                        lexeme += char
-                    elif char == '.':
-                        state = 241
-                        lexeme += char
-                    else:
-                        column -= 1
-                        if char is None:
-                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Missing Delimiter.")
-                        else:
-                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                            if char == '\n':
-                                column = 0
-                        state = 0
-
-                case 236:
-                    column -= 2
-                    tokens.append((lexeme, "int_literal", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
-                case 237:
-                    if char in self.digdelim:
-                        state = 238
-                        if char is not None:
-                            self.step_back()
-                    elif char and char.isdigit():
-                        state = 239
-                        lexeme += char
-                    elif char == '.':
-                        state = 241
-                        lexeme += char
-                    else:
-                        column -= 1
-                        if char is None:
-                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Missing Delimiter.")
-                        else:
-                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                            if char == '\n':
-                                column = 0
-                        state = 0
-
-                case 238:
-                    column -= 2
-                    tokens.append((lexeme, "int_literal", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
                 case 239:
                     if char in self.digdelim:
                         state = 240
@@ -4512,7 +4401,7 @@ class Tokenizer:
                             self.step_back()
                     elif char and char.isdigit():
                          lexeme += char
-                         self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' exceeds 13 digit limit.'")
+                         self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' exceeds 9 digit limit.'")
                          state = 0
                     elif char == '.':
                         state = 241
@@ -4729,7 +4618,7 @@ class Tokenizer:
                         if char is not None:
                             self.step_back()
                     elif char and char.isdigit():
-                        state = 258
+                        state = 266
                         lexeme += char
                     else:
                         column -= 1
@@ -4748,106 +4637,6 @@ class Tokenizer:
                         self.step_back()
                     state = 0
 
-                case 258:
-                    if char in self.digdelim:
-                        state = 259
-                        if char is not None:
-                            self.step_back()
-                    elif char and char.isdigit():
-                        state = 260
-                        lexeme += char
-                    else:
-                        column -= 1
-                        if char is None:
-                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Missing Delimiter.")
-                        else:
-                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                            if char == '\n':
-                                column = 0
-                        state = 0
-
-                case 259:
-                    column -= 2
-                    tokens.append((lexeme,"decimal_literal", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
-                case 260:
-                    if char in self.digdelim:
-                        state = 261
-                        if char is not None:
-                            self.step_back()
-                    elif char and char.isdigit():
-                        state = 262
-                        lexeme += char
-                    else:
-                        column -= 1
-                        if char is None:
-                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Missing Delimiter.")
-                        else:
-                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                            if char == '\n':
-                                column = 0
-                        state = 0
-
-                case 261:
-                    column -= 2
-                    tokens.append((lexeme,"decimal_literal", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
-                case 262:
-                    if char in self.digdelim:
-                        state = 263
-                        if char is not None:
-                            self.step_back()
-                    elif char and char.isdigit():
-                        state = 264
-                        lexeme += char
-                    else:
-                        column -= 1
-                        if char is None:
-                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Missing Delimiter.")
-                        else:
-                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                            if char == '\n':
-                                column = 0
-                        state = 0
-
-                case 263:
-                    column -= 2
-                    tokens.append((lexeme,"decimal_literal", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
-                case 264:
-                    if char in self.digdelim:
-                        state = 265
-                        if char is not None:
-                            self.step_back()
-                    elif char and char.isdigit():
-                        state = 266
-                        lexeme += char
-                    else:
-                        column -= 1
-                        if char is None:
-                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Missing Delimiter.")
-                        else:
-                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                            if char == '\n':
-                                column = 0
-                        state = 0
-
-                case 265:
-                    column -= 2
-                    tokens.append((lexeme,"decimal_literal", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
                 case 266:
                     if char in self.digdelim:
                         state = 267
@@ -4855,7 +4644,7 @@ class Tokenizer:
                             self.step_back()
                     elif char and char.isdigit():
                         lexeme += char
-                        self.errors.append(f"(Line {line}, Column {column}): decimal '{lexeme}' exceeds 13 digit limit.'")
+                        self.errors.append(f"(Line {line}, Column {column}): decimal '{lexeme}' exceeds 9 digit limit.'")
                         state = 0
                     else:
                         column -= 1
@@ -5103,7 +4892,6 @@ class Tokenizer:
                     if char == '.':
                         state = 241
                         lexeme += char
-
                     elif char and char.isdigit():
                         lexeme += char
                         self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid leading zero'")
