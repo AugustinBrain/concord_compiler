@@ -272,18 +272,6 @@ cfg = {
         ["try", "{", "<statement_list>", "}", "while", "(", "<condition>", ")", ";"],
         ["for", "(", "identifier", "=", "<arithmetic_exp>", ";", "<condition>", ";", "identifier", "<inc_dec_operator>", ")", "{", "<statement_list>", "}"]],
 
-    "<sequence>": [
-        ["scope", "(", "int_literal", "<scope_tail>", ")"],
-        ["identifier"]],
-
-    "<scope_tail>": [
-        [",", "int_literal", "<scope_end>"],
-        ["λ"]],
-
-    "<scope_end>": [
-        [",", "int_literal", "<scope_end>"],
-        ["λ"]],
-
     "<condition>": [
         ["<condition_operand>", "<condition_tail>"]],
 
