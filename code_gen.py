@@ -535,7 +535,7 @@ class CodeGenerator:
             is_task_function = True
             func_name = tokens[index + 1][0]
             param_start = index + 3  # Skip 'task', function name, and opening paren
-            return_type = "int"  # Default for task
+            return_type = "double"  # Default for task
             brace_index = index + 3
         elif tokens[index][0] == 'main':
             return_type = "int"
