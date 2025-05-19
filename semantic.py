@@ -1209,7 +1209,6 @@ class Semantic:
                 ("int_literal", "decimal_literal"): "int_literal",
                 ("decimal_literal", "int_literal"): "int_literal",
                 ("decimal_literal", "decimal_literal"): "int_literal",
-                ("string_literal", "string_literal"): "string_literal",
                 ("bool", "bool"): "int_literal",
                 ("bool", "int_literal"): "int_literal",
                 ("int_literal", "bool"): "int_literal",
