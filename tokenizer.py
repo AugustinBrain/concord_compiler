@@ -2917,7 +2917,7 @@ class Tokenizer:
                         if char is not None:
                             self.step_back()
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         column -= 1
@@ -2944,7 +2944,7 @@ class Tokenizer:
                         state = 130
                         lexeme += 'h'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
@@ -2969,7 +2969,7 @@ class Tokenizer:
                         state = 131
                         lexeme += 'i'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
@@ -2994,7 +2994,7 @@ class Tokenizer:
                         state = 132
                         lexeme += 'l'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
@@ -3019,7 +3019,7 @@ class Tokenizer:
                         state = 133
                         lexeme += 'e'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
@@ -3045,7 +3045,7 @@ class Tokenizer:
                         if char is not None:
                             self.step_back()
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         column -= 1
@@ -4591,7 +4591,7 @@ class Tokenizer:
                     state = 0
 
 
-                # Identifier (State 275 - 278)
+                # Identifier (State 252 - 255)
                 case 252: 
                     if char and (char.isalpha() or char.isdigit() or char == '_'):
                         lexeme += char
