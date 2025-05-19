@@ -4608,6 +4608,9 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
+                            
                         state = 0
 
                 case 253:
@@ -4638,6 +4641,8 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0 
 
                 case 255:
