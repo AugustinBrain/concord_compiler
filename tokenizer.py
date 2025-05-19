@@ -102,143 +102,138 @@ class Tokenizer:
                         state = 54
                         lexeme += 'i' 
                     elif char == 'l': #l - letter
-                        state = 60
+                        state = 66
                         lexeme += 'l'
                     elif char == 'm': #m - main
-                        state = 67
+                        state = 73
                         lexeme += "m"
                     elif char == 'o': #o - option
-                        state = 72
+                        state = 78
                         lexeme += 'o'
                     elif char == 'r': #r - read
-                        state = 79
+                        state = 85
                         lexeme += 'r'
                     elif char == 's': #s - scope
-                        state = 90
+                        state = 96
                         lexeme += 's'
                     elif char == 't': #t - task
-                        state = 112
+                        state = 113
                         lexeme += 't'
                     elif char == 'u': #u - unit
-                        state = 123
+                        state = 124
                         lexeme += 'u'
                     elif char == 'w': #w - while
-                        state = 128
+                        state = 129
                         lexeme += 'w'
-                    elif char == 'n':
-                        state = 188
-                        lexeme += 'n'
                     
-
-                    #identifier
-                    elif char.isalpha():
-                        state = 275
-                        lexeme += char
-                    
-
-                    #num literals
-                    elif char == '0':
-                        state = 212
-                        lexeme += char
-                    elif char.isdigit() and char != '0':
-                        state = 215
-                        lexeme += char
-                    elif char == '~':
-                        state = 214
-                        lexeme += char
-
                     #symbols
                     elif char == '+':
-                        state = 134
+                        state = 135
                         lexeme += char
 
                     elif char == '-':
-                        state = 140
+                        state = 141
                         lexeme += char
 
                     elif char == '*':
-                        state = 146
+                        state = 147
                         lexeme += char
 
                     elif char == '/':
-                        state = 154
+                        state = 155
                         lexeme += char
                     
                     elif char == '%':
-                        state = 158
+                        state = 159
                         lexeme += char
 
                     elif char == '>':
-                        state = 162
+                        state = 163
                         lexeme += char
 
                     elif char == '<':
-                        state = 166
+                        state = 167
                         lexeme += char
 
                     elif char == '!':
-                        state = 170
+                        state = 171
                         lexeme += char
 
                     elif char == '&':
-                        state = 174
+                        state = 175
                         lexeme += char
 
                     elif char == '|':
-                        state = 177
+                        state = 178
                         lexeme += char
 
                     elif char == ',':
-                        state = 194
+                        state = 181
                         lexeme += char
                     
                     elif char == ':':
-                        state = 196
+                        state = 183
                         lexeme += char
                     
                     elif char == ';':
-                        state = 198
+                        state = 185
                         lexeme += char
 
                     elif char == '(':
-                        state = 200
+                        state = 187
                         lexeme += char
                     
                     elif char == ')':
-                        state = 202
+                        state = 189
                         lexeme += char
                     
                     elif char == '[':
-                        state = 204
+                        state = 191
                         lexeme += char
                     
                     elif char == ']':
-                        state = 206
+                        state = 193
                         lexeme += char
                     
                     elif char == '{':
-                        state = 208
+                        state = 195
                         lexeme += char
                     
                     elif char == '}':
-                        state = 210
+                        state = 197
                         lexeme += char
             
                     elif char == '=':
-                        state = 288
+                        state = 199
                         lexeme += char
 
                     elif char == '.':
-                        state = 292
+                        state = 203
+                        lexeme += char
+                    
+                    #num literals
+                    elif char == '0':
+                        state = 205
+                        lexeme += char
+                    elif char.isdigit() and char != '0':
+                        state = 208
+                        lexeme += char
+                    elif char == '~':
+                        state = 207
                         lexeme += char
 
-                    #string and letter
+                     #string and letter
                     elif char == "'":
-                        state = 268
+                        state = 245
                         lexeme += "'"
                     elif char == '"':
-                        state = 272
+                        state = 249
                         lexeme += '"'
+
+                    #identifier
+                    elif char.isalpha():
+                        state = 252
+                        lexeme += char
 
                     #error handling
                     else:
@@ -250,11 +245,11 @@ class Tokenizer:
                         state = 2
                         lexeme += char
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -275,11 +270,11 @@ class Tokenizer:
                         state = 3
                         lexeme += char
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -300,11 +295,11 @@ class Tokenizer:
                         state = 4
                         lexeme += char
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -326,14 +321,14 @@ class Tokenizer:
                         if char is not None:
                             self.step_back()
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         column -= 1
                         if char is None:
                             self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
-                        else:
-                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                        else:  
+                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                                 if char == '\n':
                                     column = 0
                                 if char is not None:
@@ -351,18 +346,15 @@ class Tokenizer:
                     if char == 'e':
                         state = 7
                         lexeme += 'e'
-                    elif char == 'f':
-                        state = 14
-                        lexeme += 'f'
                     elif char == 'i':
                         state = 20
                         lexeme += 'i'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -374,6 +366,8 @@ class Tokenizer:
                                 self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                                 if char == '\n':
                                     column = 0
+                                if char is not None:
+                                    self.step_back()
                             state = 0  
                 
                 case 7:
@@ -384,11 +378,11 @@ class Tokenizer:
                         state = 14
                         lexeme += 'f'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -400,6 +394,8 @@ class Tokenizer:
                                 self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                                 if char == '\n':
                                     column = 0
+                                if char is not None:
+                                    self.step_back()
                             state = 0      
                 
                 case 8: 
@@ -407,11 +403,11 @@ class Tokenizer:
                         state = 9
                         lexeme += 'i'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -423,6 +419,8 @@ class Tokenizer:
                                 self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                                 if char == '\n':
                                     column = 0
+                                if char is not None:
+                                    self.step_back()
                             state = 0      
                 
                 case 9: 
@@ -430,11 +428,11 @@ class Tokenizer:
                         state = 10
                         lexeme += 'm'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -446,6 +444,8 @@ class Tokenizer:
                                 self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                                 if char == '\n':
                                     column = 0
+                                if char is not None:
+                                    self.step_back()
                             state = 0      
                 
                 case 10: 
@@ -453,11 +453,11 @@ class Tokenizer:
                         state = 11
                         lexeme += 'a'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -469,6 +469,8 @@ class Tokenizer:
                                 self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                                 if char == '\n':
                                     column = 0
+                                if char is not None:
+                                    self.step_back()
                             state = 0      
                 
                 case 11: 
@@ -476,11 +478,11 @@ class Tokenizer:
                         state = 12
                         lexeme += 'l'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -492,6 +494,8 @@ class Tokenizer:
                                 self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                                 if char == '\n':
                                     column = 0
+                                if char is not None:
+                                    self.step_back()
                             state = 0      
                 
                 case 12: #Delim
@@ -500,14 +504,14 @@ class Tokenizer:
                         if char is not None:
                             self.step_back()
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         column -= 1
                         if char is None:
                             self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
                         else:
-                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                                 if char == '\n':
                                     column = 0
                                 if char is not None:
@@ -527,11 +531,11 @@ class Tokenizer:
                         state = 15
                         lexeme += 'a'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -543,6 +547,8 @@ class Tokenizer:
                                 self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                                 if char == '\n':
                                     column = 0
+                                if char is not None:
+                                    self.step_back()
                             state = 0     
                         
                 case 15: 
@@ -550,11 +556,11 @@ class Tokenizer:
                         state = 16
                         lexeme += 'u'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -566,6 +572,8 @@ class Tokenizer:
                                 self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                                 if char == '\n':
                                     column = 0
+                                if char is not None:
+                                    self.step_back()
                             state = 0 
                             
                         
@@ -574,11 +582,11 @@ class Tokenizer:
                         state = 17
                         lexeme += 'l'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -590,6 +598,8 @@ class Tokenizer:
                                 self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                                 if char == '\n':
                                     column = 0
+                                if char is not None:
+                                    self.step_back()
                             state = 0 
                         
     
@@ -598,11 +608,11 @@ class Tokenizer:
                         state = 18
                         lexeme += 't'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -614,6 +624,8 @@ class Tokenizer:
                                 self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                                 if char == '\n':
                                     column = 0
+                                if char is not None:
+                                    self.step_back()
                             state = 0 
                             
                         
@@ -623,14 +635,14 @@ class Tokenizer:
                         if char is not None:
                             self.step_back()
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         column -= 1
                         if char is None:
                             self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
                         else:
-                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                                 if char == '\n':
                                     column = 0
                                 if char is not None:
@@ -650,11 +662,11 @@ class Tokenizer:
                         state = 21
                         lexeme += 's'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -676,11 +688,11 @@ class Tokenizer:
                         state = 22
                         lexeme += 'p'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -702,11 +714,11 @@ class Tokenizer:
                         state = 23
                         lexeme += 'l'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -728,11 +740,11 @@ class Tokenizer:
                         state = 24
                         lexeme += 'a'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -754,11 +766,11 @@ class Tokenizer:
                         state = 25
                         lexeme += 'y'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -781,7 +793,7 @@ class Tokenizer:
                         if char is not None:
                             self.step_back()
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         column -= 1
@@ -791,6 +803,8 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
                             
                 
@@ -810,11 +824,11 @@ class Tokenizer:
                         state = 35
                         lexeme += 'm'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -836,11 +850,11 @@ class Tokenizer:
                         state = 29
                         lexeme += 's'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -862,11 +876,11 @@ class Tokenizer:
                         state = 30
                         lexeme += 'e'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -892,7 +906,7 @@ class Tokenizer:
                         if char is not None:
                             self.step_back()
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         column -= 1
@@ -902,6 +916,8 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
                         
                         
@@ -917,11 +933,11 @@ class Tokenizer:
                         state = 33
                         lexeme += 'f'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -944,7 +960,7 @@ class Tokenizer:
                         if char is not None:
                             self.step_back()
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         column -= 1
@@ -954,6 +970,8 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
                         
            
@@ -969,11 +987,11 @@ class Tokenizer:
                         state = 36
                         lexeme += 'p'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -995,11 +1013,11 @@ class Tokenizer:
                         state = 37
                         lexeme += 't'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -1021,11 +1039,11 @@ class Tokenizer:
                         state = 38
                         lexeme += 'y'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -1048,7 +1066,7 @@ class Tokenizer:
                         if char is not None:
                             self.step_back()
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         column -= 1
@@ -1058,6 +1076,8 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
                         
            
@@ -1079,11 +1099,11 @@ class Tokenizer:
                         state = 51
                         lexeme += 'o'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -1105,11 +1125,11 @@ class Tokenizer:
                         state = 42
                         lexeme += 'l'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -1131,11 +1151,11 @@ class Tokenizer:
                         state = 43
                         lexeme += 's'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -1157,11 +1177,11 @@ class Tokenizer:
                         state = 44
                         lexeme += 'e'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -1184,7 +1204,7 @@ class Tokenizer:
                         if char is not None:
                             self.step_back()
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         column -= 1
@@ -1194,6 +1214,8 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
                         
            
@@ -1209,11 +1231,11 @@ class Tokenizer:
                         state = 47
                         lexeme += 'x'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -1235,11 +1257,11 @@ class Tokenizer:
                         state = 48
                         lexeme += 'e'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -1261,11 +1283,11 @@ class Tokenizer:
                         state = 49
                         lexeme += 'd'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -1288,7 +1310,7 @@ class Tokenizer:
                         if char is not None:
                             self.step_back()
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         column -= 1
@@ -1298,6 +1320,8 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
                         
            
@@ -1313,11 +1337,11 @@ class Tokenizer:
                         state = 52
                         lexeme += 'r'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -1340,23 +1364,19 @@ class Tokenizer:
                         if char is not None:
                             self.step_back()
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
-                        if char == ' ':
-                            state = 278
+                        column -= 1
+                        if char is None:
+                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
                             if char is not None:
                                 self.step_back()
-                        else:
-                            column -= 1
-                            if char is None:
-
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
-                            else:
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                                if char == '\n':
-                                    column = 0
-                            state = 0
+                        state = 0
                         
            
                 case 53:
@@ -1374,14 +1394,14 @@ class Tokenizer:
                         state = 57 
                         lexeme += 'n'
                     elif char == 's':
-                        state = 182
+                        state = 60
                         lexeme += 's'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -1403,23 +1423,20 @@ class Tokenizer:
                         if char is not None:
                             self.step_back()
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
-                        if char in self.delim2:
-                            state = 278
+                        column -= 1
+                        if char is None:
+
+                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
                             if char is not None:
                                 self.step_back()
-                        else:
-                            column -= 1
-                            if char is None:
-
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
-                            else:
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                                if char == '\n':
-                                    column = 0
-                            state = 0
+                        state = 0
                         
                 case 56:
                     column -= 2
@@ -1432,15 +1449,12 @@ class Tokenizer:
                     if char == 't':
                         state = 58
                         lexeme += 't'
-                    elif char == 's':
-                        state = 180
-                        lexeme += 's'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -1462,23 +1476,20 @@ class Tokenizer:
                         if char is not None:
                             self.step_back()
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
-                        if char in self.dtdelim:
-                            state = 278
+                        column -= 1
+                        if char is None:
+
+                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
                             if char is not None:
                                 self.step_back()
-                        else:
-                            column -= 1
-                            if char is None:
-
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
-                            else:
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                                if char == '\n':
-                                    column = 0
-                            state = 0
+                        state = 0
                         
                 case 59:
                     column -= 2
@@ -1488,65 +1499,46 @@ class Tokenizer:
                     state = 0
 
                 case 60:
-                    if char == 'e': 
+                    if char == 'n': 
+                        state = 62
+                        lexeme += 'n'
+                    elif char == ' ':
                         state = 61
-                        lexeme += 'e'
+                        if char is not None:
+                            self.step_back()
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
-                        if char in self.iddelim:
-                            state = 278
+                        column -= 1
+                        if char is None:
+
+                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
                             if char is not None:
                                 self.step_back()
-                        else:
-                            column -= 1
-                            if char is None:
-
-                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Missing Delimiter.")
-                            else:
-                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                                if char == '\n':
-                                    column = 0
-                                if char is not None:
-                                    self.step_back()
-                            state = 0 
+                        state = 0
                         
                 case 61:
-                    if char == 't':
-                        state = 62
-                        lexeme += 't'
-                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
-                        lexeme += char
-                    else:
-                        if char in self.iddelim:
-                            state = 278
-                            if char is not None:
-                                self.step_back()
-                        else:
-                            column -= 1
-                            if char is None:
-
-                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Missing Delimiter.")
-                            else:
-                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                                if char == '\n':
-                                    column = 0
-                                if char is not None:
-                                    self.step_back()
-                            state = 0 
+                    column -= 2
+                    tokens.append((lexeme, "is", line, column))
+                    if char is not None:
+                        self.step_back()
+                    state = 0
                         
                 case 62:
-                    if char == 't': 
+                    if char == 'o': 
                         state = 63
-                        lexeme += 't'
+                        lexeme += 'o'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -1563,15 +1555,15 @@ class Tokenizer:
                             state = 0 
                         
                 case 63:
-                    if char == 'e': 
+                    if char == 't': 
                         state = 64
-                        lexeme += 'e'
+                        lexeme += 't'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -1588,15 +1580,42 @@ class Tokenizer:
                             state = 0 
                         
                 case 64:
-                    if char == 'r': 
+                    if char == ' ':
                         state = 65
-                        lexeme += 'r'
+                        if char is not None:
+                            self.step_back()
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
+                        lexeme += char
+                    else:
+                        column -= 1
+                        if char is None:
+                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
+                        else:
+                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                                if char == '\n':
+                                    column = 0
+                                if char is not None:
+                                    self.step_back()
+                        state = 0
+                        
+                case 65:
+                    column -= 2
+                    tokens.append((lexeme, "isnot", line, column))
+                    if char is not None:
+                        self.step_back()
+                    state = 0
+                        
+                case 66:
+                    if char == 'e':
+                        state = 67
+                        lexeme += 'e'
+                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -1610,49 +1629,18 @@ class Tokenizer:
                                     column = 0
                                 if char is not None:
                                     self.step_back()
-                            state = 0 
-                        
-                case 65:
-                    if char in self.dtdelim:
-                        state = 66
-                        if char is not None:
-                            self.step_back()
-                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
-                        lexeme += char
-                    else:
-                        if char in self.dtdelim:
-                            state = 278
-                            if char is not None:
-                                self.step_back()
-                        else:
-                            column -= 1
-                            if char is None:
-
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
-                            else:
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                                if char == '\n':
-                                    column = 0
                             state = 0
-                        
-                case 66:
-                    column -= 2
-                    tokens.append((lexeme, "letter", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
 
                 case 67:
-                    if char == 'a':
+                    if char == 't':
                         state = 68
-                        lexeme += 'a'
+                        lexeme += 't'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -1669,15 +1657,15 @@ class Tokenizer:
                             state = 0 
                         
                 case 68:
-                    if char == 'i':
+                    if char == 't':
                         state = 69
-                        lexeme += 'i'
+                        lexeme += 't'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -1694,15 +1682,15 @@ class Tokenizer:
                             state = 0 
                         
                 case 69:
-                    if char == 'n':
+                    if char == 'e':
                         state = 70
-                        lexeme += 'n'
+                        lexeme += 'e'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -1719,46 +1707,15 @@ class Tokenizer:
                             state = 0 
                         
                 case 70:
-                    if char in self.pardelim:
+                    if char == 'r':
                         state = 71
-                        if char is not None:
-                            self.step_back()
+                        lexeme += 'r'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
-                        lexeme += char
-                    else:
-                        if char in self.pardelim:
-                            state = 278
-                            if char is not None:
-                                self.step_back()
-                        else:
-                            column -= 1
-                            if char is None:
-
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
-                            else:
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                                if char == '\n':
-                                    column = 0
-                            state = 0
-                        
-                case 71:
-                    column -= 2
-                    tokens.append((lexeme, "main", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
-                case 72:
-                    if char == 'p':
-                        state = 73
-                        lexeme += 'p'
-                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -1774,16 +1731,43 @@ class Tokenizer:
                                     self.step_back()
                             state = 0 
                         
-                case 73:
-                    if char == 't':
-                        state = 74
-                        lexeme += 't'
+                case 71:
+                    if char in self.dtdelim:
+                        state = 72
+                        if char is not None:
+                            self.step_back()
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
+                        lexeme += char
+                    else:
+                        column -= 1
+                        if char is None:
+                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
+                        else:
+                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                                if char == '\n':
+                                    column = 0
+                                if char is not None:
+                                    self.step_back()
+                        state = 0
+
+                case 72:
+                    column -= 2
+                    tokens.append((lexeme, "letter", line, column))
+                    if char is not None:
+                        self.step_back()
+                    state = 0
+                        
+                case 73:
+                    if char == 'a':
+                        state = 74
+                        lexeme += 'a'
+                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -1804,11 +1788,11 @@ class Tokenizer:
                         state = 75
                         lexeme += 'i'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -1825,15 +1809,15 @@ class Tokenizer:
                             state = 0 
                         
                 case 75:
-                    if char == 'o':
+                    if char == 'n':
                         state = 76
-                        lexeme += 'o'
+                        lexeme += 'n'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -1850,15 +1834,42 @@ class Tokenizer:
                             state = 0 
                         
                 case 76:
-                    if char == 'n':
+                    if char in self.pardelim:
                         state = 77
-                        lexeme += 'n'
+                        if char is not None:
+                            self.step_back()
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
+                        lexeme += char
+                    else:
+                        column -= 1
+                        if char is None:
+                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
+                        else:
+                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                                if char == '\n':
+                                    column = 0
+                                if char is not None:
+                                    self.step_back()
+                        state = 0 
+                        
+                case 77:
+                    column -= 2
+                    tokens.append((lexeme, "main", line, column))
+                    if char is not None:
+                        self.step_back()
+                    state = 0
+                        
+                case 78:
+                    if char == 'p':
+                        state = 79
+                        lexeme += 'p'
+                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -1872,49 +1883,18 @@ class Tokenizer:
                                     column = 0
                                 if char is not None:
                                     self.step_back()
-                            state = 0 
-                        
-                case 77:
-                    if char == ' ':
-                        state = 78
-                        if char is not None:
-                            self.step_back()
-                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
-                        lexeme += char
-                    else:
-                        if char == ' ':
-                            state = 278
-                            if char is not None:
-                                self.step_back()
-                        else:
-                            column -= 1
-                            if char is None:
-
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
-                            else:
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                                if char == '\n':
-                                    column = 0
                             state = 0
-                        
-                case 78:
-                    column -= 2
-                    tokens.append((lexeme, "option", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
 
                 case 79:
-                    if char == 'e':
+                    if char == 't':
                         state = 80
-                        lexeme += 'e'
+                        lexeme += 't'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -1931,18 +1911,15 @@ class Tokenizer:
                             state = 0 
                         
                 case 80:
-                    if char == 'a':
+                    if char == 'i':
                         state = 81
-                        lexeme += 'a'
-                    elif char == 't':
-                        state = 85
-                        lexeme += 't'
+                        lexeme += 'i'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -1960,15 +1937,15 @@ class Tokenizer:
                         
                         
                 case 81:
-                    if char == 'd':
+                    if char == 'o':
                         state = 82
-                        lexeme += 'd'
+                        lexeme += 'o'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -1985,15 +1962,15 @@ class Tokenizer:
                             state = 0 
                         
                 case 82:
-                    if char == 's':
+                    if char == 'n':
                         state = 83
-                        lexeme += 's'
+                        lexeme += 'n'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -2010,46 +1987,42 @@ class Tokenizer:
                             state = 0 
                         
                 case 83:
-                    if char in self.pardelim:
+                    if char == ' ':
                         state = 84
                         if char is not None:
                             self.step_back()
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
-                        if char in self.delim2:
-                            state = 278
-                            if char is not None:
-                                self.step_back()
+                        column -= 1
+                        if char is None:
+                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
                         else:
-                            column -= 1
-                            if char is None:
-
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
-                            else:
                                 self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                                 if char == '\n':
                                     column = 0
-                            state = 0
+                                if char is not None:
+                                    self.step_back()
+                        state = 0
                         
                 case 84:
                     column -= 2
-                    tokens.append((lexeme, "reads", line, column))
+                    tokens.append((lexeme, "option", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
 
                 case 85:
-                    if char == 'u':
+                    if char == 'e':
                         state = 86
-                        lexeme += 'u'
+                        lexeme += 'e'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -2067,15 +2040,18 @@ class Tokenizer:
                         
                     
                 case 86:
-                    if char == 'r':
+                    if char == 'a':
                         state = 87
-                        lexeme += 'r'
+                        lexeme += 'a'
+                    elif char == 't':
+                        state = 91
+                        lexeme += 't'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -2092,15 +2068,15 @@ class Tokenizer:
                             state = 0 
                         
                 case 87:
-                    if char == 'n':
+                    if char == 'd':
                         state = 88
-                        lexeme += 'n'
+                        lexeme += 'd'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -2117,55 +2093,15 @@ class Tokenizer:
                             state = 0 
                         
                 case 88:
-                    if char == ' ':
+                    if char == 's':
                         state = 89
-                        if char is not None:
-                            self.step_back()
+                        lexeme += 's'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
-                        lexeme += char
-                    else:
-                        if char == ' ':
-                            state = 278
-                            if char is not None:
-                                self.step_back()
-                        else:
-                            column -= 1
-                            if char is None:
-
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
-                            else:
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                                if char == '\n':
-                                    column = 0
-                            state = 0
-                        
-                case 89:
-                    column -= 2
-                    tokens.append((lexeme, "return", line, column))
-                    if char is not None:
-                        self.step_back() #l
-                    state = 0
-
-                case 90:
-                    if char == 'c':
-                        state = 91
-                        lexeme += 'c'
-                    elif char == 'e':    #S"E"LECT add in case 90
-                        state = 96
-                        lexeme += 'e'
-                    elif char == 'k':      #S"K"IP add in case 90
-                        state = 102
-                        lexeme += 'k'
-                    elif char == 't':         #S"T"RING add in case 90
-                        state = 106
-                        lexeme += 't'
-                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -2181,19 +2117,43 @@ class Tokenizer:
                                     self.step_back()
                             state = 0 
                         
-                 
-                    
+                case 89:
+                    if char in self.pardelim:
+                        state = 90
+                        if char is not None:
+                            self.step_back()
+                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
+                        state = 254
+                        lexeme += char
+                    else:
+                        column -= 1
+                        if char is None:
+                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
+                        else:
+                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                                if char == '\n':
+                                    column = 0
+                                if char is not None:
+                                    self.step_back()
+                        state = 0
+
+                case 90:
+                    column -= 2
+                    tokens.append((lexeme, "reads", line, column))
+                    if char is not None:
+                        self.step_back()
+                    state = 0
 
                 case 91:
-                    if char == 'o':
+                    if char == 'u':
                         state = 92
-                        lexeme += 'o'
+                        lexeme += 'u'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -2210,15 +2170,15 @@ class Tokenizer:
                             state = 0 
                         
                 case 92:
-                    if char == 'p':
+                    if char == 'r':
                         state = 93
-                        lexeme += 'p'
+                        lexeme += 'r'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -2235,15 +2195,15 @@ class Tokenizer:
                             state = 0 
                         
                 case 93:
-                    if char == 'e':
+                    if char == 'n':
                         state = 94
-                        lexeme += 'e'
+                        lexeme += 'n'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -2260,46 +2220,48 @@ class Tokenizer:
                             state = 0 
                         
                 case 94:
-                    if char in self.pardelim:
+                    if char == ' ':
                         state = 95
                         if char is not None:
                             self.step_back()
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
-                        if char in self.pardelim:
-                            state = 278
-                            if char is not None:
-                                self.step_back()
+                        column -= 1
+                        if char is None:
+                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
                         else:
-                            column -= 1
-                            if char is None:
-
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
-                            else:
                                 self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                                 if char == '\n':
                                     column = 0
-                            state = 0
+                                if char is not None:
+                                    self.step_back()
+                        state = 0
                         
                 case 95:
                     column -= 2
-                    tokens.append((lexeme, "scope", line, column))#check
+                    tokens.append((lexeme, "return", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
 
                 case 96:
-                    if char == 'l':
+                    if char == 'e':
                         state = 97
-                        lexeme += 'l'
+                        lexeme += 'e'
+                    elif char == 'k':
+                        state = 103
+                        lexeme += 'k'
+                    elif char == 't':
+                        state = 107
+                        lexeme += 't'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -2316,15 +2278,15 @@ class Tokenizer:
                             state = 0 
                         
                 case 97:
-                    if char == 'e':
+                    if char == 'l':
                         state = 98
-                        lexeme += 'e'
+                        lexeme += 'l'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -2341,15 +2303,15 @@ class Tokenizer:
                             state = 0 
                         
                 case 98:
-                    if char == 'c':
+                    if char == 'e':
                         state = 99
-                        lexeme += 'c'
+                        lexeme += 'e'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -2366,15 +2328,15 @@ class Tokenizer:
                             state = 0 
                         
                 case 99:
-                    if char == 't':
+                    if char == 'c':
                         state = 100
-                        lexeme += 't'
+                        lexeme += 'c'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -2391,46 +2353,15 @@ class Tokenizer:
                             state = 0 
                         
                 case 100:
-                    if char in self.conddelim:
+                    if char == 't':
                         state = 101
-                        if char is not None:
-                            self.step_back()
+                        lexeme += 't'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
-                        lexeme += char
-                    else:
-                        if char in self.delim2:
-                            state = 278
-                            if char is not None:
-                                self.step_back()
-                        else:
-                            column -= 1
-                            if char is None:
-
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
-                            else:
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                                if char == '\n':
-                                    column = 0
-                            state = 0
-                        
-                case 101:
-                    column -= 2
-                    tokens.append((lexeme, "select", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
-                case 102:
-                    if char == 'i':
-                        state = 103
-                        lexeme += 'i'
-                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -2446,16 +2377,43 @@ class Tokenizer:
                                     self.step_back()
                             state = 0 
                         
-                case 103:
-                    if char == 'p':
-                        state = 104
-                        lexeme += 'p'
+                case 101:
+                    if char in self.conddelim:
+                        state = 102
+                        if char is not None:
+                            self.step_back()
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
+                        lexeme += char
+                    else:
+                        column -= 1
+                        if char is None:
+                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
+                        else:
+                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                                if char == '\n':
+                                    column = 0
+                                if char is not None:
+                                    self.step_back()
+                        state = 0
+
+                case 102:
+                    column -= 2
+                    tokens.append((lexeme, "select", line, column))
+                    if char is not None:
+                        self.step_back()
+                    state = 0
+                        
+                case 103:
+                    if char == 'i':
+                        state = 104
+                        lexeme += 'i'
+                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -2472,46 +2430,15 @@ class Tokenizer:
                             state = 0 
                         
                 case 104:
-                    if char == ';':
+                    if char == 'p':
                         state = 105
-                        if char is not None:
-                            self.step_back()
+                        lexeme += 'p'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
-                        lexeme += char
-                    else:
-                        if char == ';':
-                            state = 278
-                            if char is not None:
-                                self.step_back()
-                        else:
-                            column -= 1
-                            if char is None:
-
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
-                            else:
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                                if char == '\n':
-                                    column = 0
-                            state = 0
-                        
-                case 105:
-                    column -= 2
-                    tokens.append((lexeme, "skip", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
-                case 106:
-                    if char == 'r':
-                        state = 107
-                        lexeme += 'r'
-                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -2527,16 +2454,44 @@ class Tokenizer:
                                     self.step_back()
                             state = 0 
                         
-                case 107:
-                    if char == 'i':
-                        state = 108
-                        lexeme += 'i'
+                case 105:
+                    if char == ';':
+                        state = 106
+                        if char is not None:
+                            self.step_back()
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
+                        lexeme += char
+                    else:
+                        column -= 1
+                        if char is None:
+
+                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
+                            if char is not None:
+                                    self.step_back()
+                        state = 0
+
+                case 106:
+                    column -= 2
+                    tokens.append((lexeme, "skip", line, column))
+                    if char is not None:
+                        self.step_back()
+                    state = 0
+                
+                case 107:
+                    if char == 'r':
+                        state = 108
+                        lexeme += 'r'
+                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -2553,15 +2508,15 @@ class Tokenizer:
                             state = 0 
                         
                 case 108:
-                    if char == 'n':
+                    if char == 'i':
                         state = 109
-                        lexeme += 'n'
+                        lexeme += 'i'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -2578,15 +2533,15 @@ class Tokenizer:
                             state = 0 
                         
                 case 109:
-                    if char == 'g':
+                    if char == 'n':
                         state = 110
-                        lexeme += 'g'
+                        lexeme += 'n'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -2603,49 +2558,15 @@ class Tokenizer:
                             state = 0 
                         
                 case 110:
-                    if char in self.dtdelim:
+                    if char == 'g':
                         state = 111
-                        if char is not None:
-                            self.step_back()
+                        lexeme += 'g'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
-                        lexeme += char
-                    else:
-                        if char in self.dtdelim:
-                            state = 278
-                            if char is not None:
-                                self.step_back()
-                        else:
-                            column -= 1
-                            if char is None:
-
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
-                            else:
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                                if char == '\n':
-                                    column = 0
-                            state = 0
-                        
-                case 111:
-                    column -= 2
-                    tokens.append((lexeme, "string", line, column))
-                    if char is not None:
-                        self.step_back() 
-                    state =  0
-
-                case 112:
-                    if char == 'a':
-                        state = 113
-                        lexeme += 'a'
-                    elif char == 'r':
-                        state = 117
-                        lexeme += 'r'
-                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -2661,16 +2582,47 @@ class Tokenizer:
                                     self.step_back()
                             state = 0 
                         
-                case 113:
-                    if char == 's':
-                        state = 114
-                        lexeme += 's'
+                case 111:
+                    if char in self.dtdelim:
+                        state = 112
+                        if char is not None:
+                            self.step_back()
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
+                        lexeme += char
+                    else:
+                        column -= 1
+                        if char is None:
+
+                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
+                            if char is not None:
+                                self.step_back() 
+                        state = 0
+                        
+                case 112:
+                    column -= 2
+                    tokens.append((lexeme, "string", line, column))
+                    if char is not None:
+                        self.step_back() 
+                    state =  0
+
+                case 113:
+                    if char == 'a':
+                        state = 114
+                        lexeme += 'a'
+                    elif char == 'r':
+                        state = 118
+                        lexeme += 'r'
+                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -2687,15 +2639,40 @@ class Tokenizer:
                             state = 0 
                         
                 case 114:
-                    if char == 'k':
+                    if char == 's':
                         state = 115
-                        lexeme += 'k'
+                        lexeme += 's'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
+                            if char is not None:
+                                self.step_back()
+                        else:
+                            column -= 1
+                            if char is None:
+
+                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Missing Delimiter.")
+                            else:
+                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                                if char == '\n':
+                                    column = 0
+                                if char is not None:
+                                    self.step_back()
+                            state = 0 
+                        
+                case 115:
+                    if char == 'k':
+                        state = 116
+                        lexeme += 'k'
+                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
+                        state = 254
+                        lexeme += char
+                    else:
+                        if char in self.iddelim:
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -2711,17 +2688,17 @@ class Tokenizer:
                                     self.step_back()
                             state = 0 
                            
-                case 115:
+                case 116:
                     if char == ' ':
-                        state = 116
+                        state = 117
                         if char is not None:
                             self.step_back()
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char == ' ':
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -2733,53 +2710,30 @@ class Tokenizer:
                                 self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                                 if char == '\n':
                                     column = 0
+                                if char is not None:
+                                    self.step_back()
                             state = 0
                         
-                case 116:
+                case 117:
                     column -= 2
                     tokens.append((lexeme, "task", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
 
-                case 117:
+                case 118:
                     if char == 'u':
-                        state = 118
+                        state = 119
                         lexeme += 'u'
                     elif char == 'y':
-                        state = 121
+                        state = 122
                         lexeme += 'y'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
-                            if char is not None:
-                                self.step_back()
-                        else:
-                            column -= 1
-                            if char is None:
-
-                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Missing Delimiter.")
-                            else:
-                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                                if char == '\n':
-                                    column = 0
-                                if char is not None:
-                                    self.step_back()
-                            state = 0 
-                        
-                case 118:
-                    if char == 'e':
-                        state = 119
-                        lexeme += 'e'
-                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
-                        lexeme += char
-                    else:
-                        if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -2796,77 +2750,96 @@ class Tokenizer:
                             state = 0 
                         
                 case 119:
-                    if char in self.delim3:
+                    if char == 'e':
                         state = 120
-                        if char is not None:
-                            self.step_back()
+                        lexeme += 'e'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
-                        if char in self.delim3:
-                            state = 278
+                        if char in self.iddelim:
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
                             column -= 1
                             if char is None:
 
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
+                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Missing Delimiter.")
                             else:
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                                 if char == '\n':
                                     column = 0
-                            state = 0
+                                if char is not None:
+                                    self.step_back()
+                            state = 0 
                         
                 case 120:
+                    if char in self.delim3:
+                        state = 121
+                        if char is not None:
+                            self.step_back()
+                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
+                        state = 254
+                        lexeme += char
+                    else:
+                        column -= 1
+                        if char is None:
+
+                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
+                            if char is not None:
+                                self.step_back()
+                        state = 0
+                        
+                case 121:
                     column -= 2
                     tokens.append((lexeme, "true", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
 
-                case 121:
+                case 122:
                     if char in self.delim2:
-                        state = 122
+                        state = 123
                         if char is not None:
                             self.step_back()
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
-                        if char == ':':
-                            state = 278
+                        column -= 1
+                        if char is None:
+
+                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
                             if char is not None:
                                 self.step_back()
-                        else:
-                            column -= 1
-                            if char is None:
-
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
-                            else:
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                                if char == '\n':
-                                    column = 0
-                            state = 0
+                        state = 0
                         
-                case 122:
+                case 123:
                     column -= 2
                     tokens.append((lexeme, "try", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
 
-                case 123:
+                case 124:
                     if char == 'n':
-                        state = 124
+                        state = 125
                         lexeme += 'n'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -2883,41 +2856,16 @@ class Tokenizer:
                             state = 0 
                         
                     
-                case 124:
+                case 125:
                     if char == 'i':
-                        state = 125
+                        state = 126
                         lexeme += 'i'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
-                            if char is not None:
-                                self.step_back()
-                        else:
-                            column -= 1
-                            if char is None:
-
-                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Missing Delimiter.")
-                            else:
-                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                                if char == '\n':
-                                    column = 0
-                                if char is not None:
-                                    self.step_back()
-                            state = 0 
-                        
-                case 125:
-                    if char == 't':
-                        state = 126
-                        lexeme += 't'
-                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
-                        lexeme += char
-                    else:
-                        if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -2934,46 +2882,15 @@ class Tokenizer:
                             state = 0 
                         
                 case 126:
-                    if char == ' ':
+                    if char == 't':
                         state = 127
-                        if char is not None:
-                            self.step_back()
+                        lexeme += 't'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
-                        lexeme += char
-                    else:
-                        if char == ' ':
-                            state = 278
-                            if char is not None:
-                                self.step_back()
-                        else:
-                            column -= 1
-                            if char is None:
-
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
-                            else:
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                                if char == '\n':
-                                    column = 0
-                            state = 0
-                        
-                case 127:
-                    column -= 2
-                    tokens.append((lexeme,"unit", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
-                case 128:
-                    if char == 'h':
-                        state = 129
-                        lexeme += 'h'
-                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
+                        state = 254
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -2989,16 +2906,44 @@ class Tokenizer:
                                     self.step_back()
                             state = 0 
                         
+                case 127:
+                    if char == ' ':
+                        state = 128
+                        if char is not None:
+                            self.step_back()
+                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
+                        state = 275
+                        lexeme += char
+                    else:
+                        column -= 1
+                        if char is None:
+
+                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
+                            if char is not None:
+                                self.step_back()
+                        state = 0
+                        
+                case 128:
+                    column -= 2
+                    tokens.append((lexeme,"unit", line, column))
+                    if char is not None:
+                        self.step_back()
+                    state = 0
+
                 case 129:
-                    if char == 'i':
+                    if char == 'h':
                         state = 130
-                        lexeme += 'i'
+                        lexeme += 'h'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
                         state = 275
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -3015,15 +2960,15 @@ class Tokenizer:
                             state = 0 
                         
                 case 130:
-                    if char == 'l':
+                    if char == 'i':
                         state = 131
-                        lexeme += 'l'
+                        lexeme += 'i'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
                         state = 275
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -3040,15 +2985,15 @@ class Tokenizer:
                             state = 0 
                         
                 case 131:
-                    if char == 'e':
+                    if char == 'l':
                         state = 132
-                        lexeme += 'e'
+                        lexeme += 'l'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
                         state = 275
                         lexeme += char
                     else:
                         if char in self.iddelim:
-                            state = 278
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
@@ -3065,30 +3010,52 @@ class Tokenizer:
                             state = 0 
                         
                 case 132:
-                    if char in self.conddelim:
+                    if char == 'e':
                         state = 133
-                        if char is not None:
-                            self.step_back()
+                        lexeme += 'e'
                     elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
                         state = 275
                         lexeme += char
                     else:
-                        if char in self.delim2:
-                            state = 278
+                        if char in self.iddelim:
+                            state = 255
                             if char is not None:
                                 self.step_back()
                         else:
                             column -= 1
                             if char is None:
 
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
+                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Missing Delimiter.")
                             else:
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                                 if char == '\n':
                                     column = 0
-                            state = 0
+                                if char is not None:
+                                    self.step_back()
+                            state = 0 
                         
                 case 133:
+                    if char in self.conddelim:
+                        state = 134
+                        if char is not None:
+                            self.step_back()
+                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
+                        state = 275
+                        lexeme += char
+                    else:
+                        column -= 1
+                        if char is None:
+
+                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
+                            if char is not None:
+                                self.step_back()
+                        state = 0
+                        
+                case 134:
                     column -= 2
                     tokens.append((lexeme, "while", line, column))
                     if char is not None:
@@ -3096,16 +3063,16 @@ class Tokenizer:
                     state = 0
 
                 # Symbols
-                case 134:
+                case 135:
                     if char in self.delim7:
-                        state = 135
+                        state = 136
                         if char is not None:
                             self.step_back()
                     elif char == '+':
-                        state = 136
+                        state = 137
                         lexeme += char
                     elif char == '=':                        
-                        state = 138
+                        state = 139
                         lexeme += char
                     else:
                         column -= 1
@@ -3115,18 +3082,20 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
 
-                case 135:
+                case 136:
                     column -= 2
                     tokens.append((lexeme, "+", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
 
-                case 136:
+                case 137:
                     if char in self.delim4:
-                        state = 137
+                        state = 138
                         if char is not None:
                             self.step_back()
                     else:
@@ -3137,18 +3106,20 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
                 
-                case 137:
+                case 138:
                     column -= 2
                     tokens.append((lexeme, "++", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
-                
-                case 138:
+    
+                case 139:
                     if char in self.delim5:
-                        state = 139
+                        state = 140
                         if char is not None:
                             self.step_back()
                     else:
@@ -3159,25 +3130,27 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
                 
-                case 139:
+                case 140:
                     column -= 2
                     tokens.append((lexeme, "+=", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
 
-                case 140:
+                case 141:
                     if char in self.delim5:
-                        state = 141
+                        state = 142
                         if char is not None:
                             self.step_back()
                     elif char == '-':
-                        state = 142
+                        state = 143
                         lexeme += char
                     elif char == '=':                        
-                        state = 144
+                        state = 145
                         lexeme += char
                     else:
                         column -= 1
@@ -3187,18 +3160,20 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
                 
-                case 141:
+                case 142:
                     column -= 2
                     tokens.append((lexeme, "-", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
                 
-                case 142:
+                case 143:
                     if char in self.delim4:
-                        state = 143
+                        state = 144
                         if char is not None:
                             self.step_back()
                     else:
@@ -3209,18 +3184,20 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
                 
-                case 143:
+                case 144:
                     column -= 2
                     tokens.append((lexeme, "--", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
                 
-                case 144:
+                case 145:
                     if char in self.delim5:
-                        state = 145
+                        state = 146
                         if char is not None:
                             self.step_back()
                     else:
@@ -3231,22 +3208,24 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
                 
-                case 145:
+                case 146:
                     column -= 2
                     tokens.append((lexeme, "-=", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
 
-                case 146:
+                case 147:
                     if char in self.delim5:
-                        state = 147
+                        state = 148
                         if char is not None:
                             self.step_back()
                     elif char == '=':
-                        state = 148
+                        state = 149
                         lexeme += char
                     elif char == '*':                        
                         state = 150
@@ -3259,18 +3238,20 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
                 
-                case 147:
+                case 148:
                     column -= 2
                     tokens.append((lexeme, "*", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
                 
-                case 148:
+                case 149:
                     if char in self.delim5:
-                        state = 149
+                        state = 150
                         if char is not None:
                             self.step_back()
                     else:
@@ -3281,22 +3262,24 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                    self.step_back()
                         state = 0
                 
-                case 149:
+                case 150:
                     column -= 2
                     tokens.append((lexeme, "*=", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
                 
-                case 150:
+                case 151:
                     if char in self.delim5:
-                        state = 151
+                        state = 152
                         if char is not None:
                             self.step_back()
                     elif char == '=':
-                        state = 152
+                        state = 153
                         lexeme += char
                     else:
                         column -= 1
@@ -3306,18 +3289,20 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
                 
-                case 151:
+                case 152:
                     column -= 2
                     tokens.append((lexeme, "**", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
                 
-                case 152:
+                case 153:
                     if char in self.delim5:
-                        state = 153
+                        state = 154
                         if char is not None:
                             self.step_back()
                     else:
@@ -3328,18 +3313,20 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
                 
-                case 153:
+                case 154:
                     column -= 2
                     tokens.append((lexeme, "**=", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
                 
-                case 154:
+                case 155:
                     if char in self.delim5:
-                        state = 155
+                        state = 156
                         if char is not None:
                             self.step_back()
                     elif char == '/':
@@ -3347,7 +3334,7 @@ class Tokenizer:
                     elif char == '*':
                         state = 282
                     elif char == '=':
-                        state = 156
+                        state = 157
                         lexeme += char
                     else:
                         column -= 1
@@ -3357,18 +3344,20 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
                 
-                case 155:
+                case 156:
                     column -= 2
                     tokens.append((lexeme, "/", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
                 
-                case 156:
+                case 157:
                     if char in self.delim5:
-                        state = 157
+                        state = 158
                         if char is not None:
                             self.step_back()
                     else:
@@ -3379,22 +3368,24 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
                 
-                case 157:
+                case 158:
                     column -= 2
                     tokens.append((lexeme, "/=", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
 
-                case 158:
+                case 159:
                     if char in self.delim5:
-                        state = 159
+                        state = 160
                         if char is not None:
                             self.step_back()
                     elif char == '=':
-                        state = 160
+                        state = 161
                         lexeme += char
                     else:
                         column -= 1
@@ -3404,18 +3395,20 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
                 
-                case 159:
+                case 160:
                     column -= 2
                     tokens.append((lexeme, "%", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
                 
-                case 160:
+                case 161:
                     if char in self.delim5:
-                        state = 161
+                        state = 162
                         if char is not None:
                             self.step_back()
                     else:
@@ -3426,22 +3419,24 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
                 
-                case 161:
+                case 162:
                     column -= 2
                     tokens.append((lexeme, "%=", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
 
-                case 162:
+                case 163:
                     if char in self.delim5:
-                        state = 163
+                        state = 164
                         if char is not None:
                             self.step_back()
                     elif char == '=':
-                        state = 164
+                        state = 165
                         lexeme += char
                     else:
                         column -= 1
@@ -3451,18 +3446,20 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
 
-                case 163:
+                case 164:
                     column -= 2
                     tokens.append((lexeme, ">", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
 
-                case 164:
+                case 165:
                     if char in self.delim5:
-                        state = 165
+                        state = 166
                         if char is not None:
                             self.step_back()
                     else:
@@ -3473,22 +3470,24 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
 
-                case 165:
+                case 166:
                     column -= 2
                     tokens.append((lexeme, ">=", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
 
-                case 166:
+                case 167:
                     if char in self.delim5:
-                        state = 167
+                        state = 168
                         if char is not None:
                             self.step_back()
                     elif char == '=':
-                        state = 168
+                        state = 169
                         lexeme += char
                     else:
                         column -= 1
@@ -3498,18 +3497,20 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
 
-                case 167:
+                case 168:
                     column -= 2
                     tokens.append((lexeme, "<", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
 
-                case 168:
+                case 169:
                     if char in self.delim5:
-                        state = 169
+                        state = 170
                         if char is not None:
                             self.step_back()
                     else:
@@ -3517,25 +3518,27 @@ class Tokenizer:
                         if char is None:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Missing Delimiter.")
                         else:
-                            self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            self.errors.append(f"(Line {line}, Column {column}): Symbol '&lt;=' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
 
-                case 169:
+                case 170:
                     column -= 2
                     tokens.append((lexeme, "<=", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
                 
-                case 170:
+                case 171:
                     if char in self.delim9:
-                        state = 171
+                        state = 172
                         if char is not None:
                             self.step_back()
                     elif char == '=':
-                        state = 172
+                        state = 173
                         lexeme += char
                     else:
                         column -= 1
@@ -3545,18 +3548,20 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
 
-                case 171:
+                case 172:
                     column -= 2
                     tokens.append((lexeme, "!", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
 
-                case 172:
+                case 173:
                     if char in self.delim10:
-                        state = 173
+                        state = 174
                         if char is not None:
                             self.step_back()
                     else:
@@ -3567,18 +3572,20 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
 
-                case 173:
+                case 174:
                     column -= 2
                     tokens.append((lexeme, "!=", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
 
-                case 174:
+                case 175:
                     if char == '&':
-                        state = 175
+                        state = 176
                         lexeme += char
                     else:
                         column -= 1
@@ -3588,11 +3595,13 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
 
-                case 175:
+                case 176:
                     if char in self.delim5:
-                        state = 176
+                        state = 177
                         if char is not None:
                             self.step_back()
                     else:
@@ -3603,18 +3612,20 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
 
-                case 176:
+                case 177:
                     column -= 2
                     tokens.append((lexeme, "&&", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
 
-                case 177:
+                case 178:
                     if char == '|':
-                        state = 178
+                        state = 179
                         lexeme += char
                     else:
                         column -= 1
@@ -3624,11 +3635,13 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
 
-                case 178:
+                case 179:
                     if char in self.delim5:
-                        state = 179
+                        state = 180
                         if char is not None:
                             self.step_back()
                     else:
@@ -3639,291 +3652,20 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
 
-                case 179:
+                case 180:
                     column -= 2
                     tokens.append((lexeme, "||", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
 
-                case 180:
-                    if char == ' ':
-                        state = 181
-                        if char is not None:
-                            self.step_back()
-                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
-                        lexeme += char
-                    else:
-                        if char == ' ':
-                            state = 278
-                            if char is not None:
-                                self.step_back()
-                        else:
-                            column -= 1
-                            if char is None:
-
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
-                            else:
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                                if char == '\n':
-                                    column = 0
-                            state = 0  
                 case 181:
-                    column -= 2
-                    tokens.append((lexeme, "ins", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-                
-                case 182:
-                    if char == ' ':
-                        state = 183
-                        if char is not None:
-                            self.step_back()
-                    elif char == 'n':
-                        state = 184
-                        lexeme += char
-                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
-                        lexeme += char
-                    else:
-                        if char == ' ':
-                            state = 278
-                            if char is not None:
-                                self.step_back()
-                        else:
-                            column -= 1
-                            if char is None:
-
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
-                            else:
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                                if char == '\n':
-                                    column = 0
-                            state = 0
-
-                case 183:
-                    column -= 2
-                    tokens.append((lexeme, "is", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
-                case 184:
-                    if char == 'o':
-                        state = 185
-                        lexeme += char
-                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
-                        lexeme += char
-                    else:
-                        if char in self.iddelim:
-                            state = 278
-                            if char is not None:
-                                self.step_back()
-                        else:
-                            column -= 1
-                            if char is None:
-
-                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Missing Delimiter.")
-                            else:
-                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                                if char == '\n':
-                                    column = 0
-                                if char is not None:
-                                    self.step_back()
-                            state = 0  
-                case 185:
-                    if char == 't':
-                        state = 186
-                        lexeme += char
-                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
-                        lexeme += char
-                    else:
-                        if char in self.iddelim:
-                            state = 278
-                            if char is not None:
-                                self.step_back()
-                        else:
-                            column -= 1
-                            if char is None:
-
-                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Missing Delimiter.")
-                            else:
-                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                                if char == '\n':
-                                    column = 0
-                                if char is not None:
-                                    self.step_back()
-                            state = 0  
-                case 186:
-                    if char == ' ':
-                        state = 187
-                        if char is not None:
-                            self.step_back()
-                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
-                        lexeme += char
-                    else:
-                        if char == ' ':
-                            state = 278
-                            if char is not None:
-                                self.step_back()
-                        else:
-                            column -= 1
-                            if char is None:
-
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
-                            else:
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                                if char == '\n':
-                                    column = 0
-                            state = 0  
-                case 187:
-                    column -= 2
-                    tokens.append((lexeme, "isnot", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
-                case 188:
-                    if char == 'o':
-                        state = 189
-                        lexeme += char
-                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
-                        lexeme += char
-                    else:
-                        if char in self.iddelim:
-                            state = 278
-                            if char is not None:
-                                self.step_back()
-                        else:
-                            column -= 1
-                            if char is None:
-
-                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Missing Delimiter.")
-                            else:
-                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                                if char == '\n':
-                                    column = 0
-                                if char is not None:
-                                    self.step_back()
-                            state = 0
-
-                case 189:
-                    if char == 't':
-                        state = 190
-                        lexeme += char
-                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
-                        lexeme += char
-                    else:
-                        if char in self.iddelim:
-                            state = 278
-                            if char is not None:
-                                self.step_back()
-                        else:
-                            column -= 1
-                            if char is None:
-
-                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Missing Delimiter.")
-                            else:
-                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                                if char == '\n':
-                                    column = 0
-                                if char is not None:
-                                    self.step_back()
-                            state = 0
-
-                case 190:
-                    if char == 'i':
-                        state = 191
-                        lexeme += char
-                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
-                        lexeme += char
-                    else:
-                        if char in self.iddelim:
-                            state = 278
-                            if char is not None:
-                                self.step_back()
-                        else:
-                            column -= 1
-                            if char is None:
-
-                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Missing Delimiter.")
-                            else:
-                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                                if char == '\n':
-                                    column = 0
-                                if char is not None:
-                                    self.step_back()
-                            state = 0
-
-                case 191:
-                    if char == 'n':
-                        state = 192
-                        lexeme += char
-                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
-                        lexeme += char
-                    else:
-                        if char in self.iddelim:
-                            state = 278
-                            if char is not None:
-                                self.step_back()
-                        else:
-                            column -= 1
-                            if char is None:
-
-                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Missing Delimiter.")
-                            else:
-                                self.errors.append(f"(Line {line}, Column {column}): Identifier '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                                if char == '\n':
-                                    column = 0
-                                if char is not None:
-                                    self.step_back()
-                            state = 0
-
-                case 192: #Delim
-                    if char == ' ':
-                        state = 193
-                        if char is not None:
-                            self.step_back()
-                    elif char is not None and (char.isalpha() or char.isdigit() or char == '_'):
-                        state = 275
-                        lexeme += char
-                    else:
-                        if char == ' ':
-                            state = 278
-                            if char is not None:
-                                self.step_back()
-                        else:
-                            column -= 1
-                            if char is None:
-
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
-                            else:
-                                self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                                if char == '\n':
-                                    column = 0
-                            state = 0
-                
-                case 193: #Tokenize
-                    column -= 2
-                    tokens.append((lexeme, "notin", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
-                case 194:
                     if char in self.delim11:
-                        state = 195
+                        state = 182
                         if char is not None:
                             self.step_back()
                     else:
@@ -3934,18 +3676,20 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
 
-                case 195:
+                case 182:
                     column -= 2
                     tokens.append((lexeme, ",", line, column))
                     if char is not None:
                             self.step_back()
                     state = 0
 
-                case 196:
+                case 183:
                     if char in self.delim6:
-                        state = 197
+                        state = 184
                         if char is not None:
                             self.step_back()
                     else:
@@ -3956,18 +3700,20 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
 
-                case 197:
+                case 184:
                     column -= 2
                     tokens.append((lexeme, ":", line, column))
                     if char is not None:
                             self.step_back()
                     state = 0
 
-                case 198:
+                case 185:
                     if char is None or char in self.delim6:
-                        state = 199
+                        state = 186
                         if char is not None:
                             self.step_back()
                     else:
@@ -3978,18 +3724,20 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
 
-                case 199:
+                case 186:
                     column -= 2
                     tokens.append((lexeme, ";", line, column))
                     if char is not None:
                             self.step_back()
                     state = 0
                     
-                case 200:
+                case 187:
                     if char in self.delim12:
-                        state = 201
+                        state = 188
                         if char is not None:
                             self.step_back()
                     else:
@@ -4000,18 +3748,20 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
 
-                case 201:
+                case 188:
                     column -= 2
                     tokens.append((lexeme, "(", line, column))
                     if char is not None:
                             self.step_back()
                     state = 0
                     
-                case 202:
+                case 189:
                     if char in self.delim13:
-                        state = 203
+                        state = 190
                         if char is not None:
                             self.step_back()
                     else:
@@ -4022,18 +3772,20 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
 
-                case 203:
+                case 190:
                     column -= 2
                     tokens.append((lexeme, ")", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0    
 
-                case 204:
+                case 191:
                     if char in self.delim14:
-                        state = 205
+                        state = 192
                         if char is not None:
                             self.step_back()
                     else:
@@ -4044,18 +3796,20 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
 
-                case 205:
+                case 192:
                     column -= 2
                     tokens.append((lexeme, "[", line, column))
                     if char is not None:
                             self.step_back()
                     state = 0 
 
-                case 206:
+                case 193:
                     if char in self.delim15:
-                        state = 207
+                        state = 194
                         if char is not None:
                             self.step_back()
                     else:
@@ -4066,18 +3820,20 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
 
-                case 207:
+                case 194:
                     column -= 2
                     tokens.append((lexeme, "]", line, column))
                     if char is not None:
                             self.step_back()
                     state = 0  
 
-                case 208:
+                case 195:
                     if char in self.delim16:
-                        state = 209
+                        state = 196
                         if char is not None:
                             self.step_back()
                     else:
@@ -4088,18 +3844,71 @@ class Tokenizer:
                             self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
                             if char == '\n':
                                 column = 0
+                            if char is not None:
+                                self.step_back()
                         state = 0
 
-                case 209:
+                case 196:
                     column -= 2
                     tokens.append((lexeme, "{", line, column))
                     if char is not None:
                             self.step_back()
                     state = 0
 
-                case 210:
+                case 197:
                     if char is None or char in self.delim17:
-                        state = 211
+                        state = 198
+                        if char is not None:
+                            self.step_back()
+                    else:
+                        column -= 1
+                        if char is None:
+                            self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
+                            if char is not None:
+                                self.step_back()
+                        state = 0
+
+                case 198:
+                    column -= 2
+                    tokens.append((lexeme, "}", line, column))
+                    if char is not None:
+                            self.step_back()
+                    state = 0
+
+                case 199:
+                    if char in self.delim11:
+                        state = 200
+                        if char is not None:
+                            self.step_back()
+                    elif char == '=':
+                        state = 201
+                        lexeme += char
+                    else:
+                        column -= 1
+                        if char is None:
+                            self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
+                            if char is not None:
+                                self.step_back()
+                        state = 0
+                
+                case 200:
+                    column -= 2
+                    tokens.append((lexeme, "=", line, column))
+                    if char is not None:
+                            self.step_back()
+                    state = 0
+                
+                case 201:
+                    if char in self.delim10:
+                        state = 202
                         if char is not None:
                             self.step_back()
                     else:
@@ -4112,27 +3921,155 @@ class Tokenizer:
                                 column = 0
                         state = 0
 
-                case 211:
+                case 202:
                     column -= 2
-                    tokens.append((lexeme, "}", line, column))
+                    tokens.append((lexeme, "==", line, column))
                     if char is not None:
+                        self.step_back()
+                    state = 0
+
+                case 203:
+                    if char in self.alphabet:
+                        state = 204
+                        if char is not None:
                             self.step_back()
-                    state = 0 
+                    else:
+                        column -= 1
+                        if char is None:
+                            self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
+                            if char is not None:
+                                self.step_back()
+                            state = 0
+
+                case 204:
+                    column -= 2
+                    tokens.append((lexeme, ".", line, column))
+                    if char is not None:
+                        self.step_back()
+                    state = 0
 
                 # int and decimal Literals (State 212 - 266)
-                case 212:
+                case 205:
                     if char in self.digdelim:
-                        state = 213
+                        state = 206
                         if char is not None:
                             self.step_back()
                     elif char == '.':
-                        state = 241
+                        state = 226
                         lexeme += char
                         
                     elif char and char.isdigit():
                         lexeme += char
                         self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' leading zero error.")
                         state = 0
+                    else:
+                        column -= 1
+                        if char is None:
+                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
+                        state = 0
+
+                case 206:
+                    column -= 2
+                    tokens.append((lexeme, "int_literal", line, column))
+                    if char is not None:
+                        self.step_back()
+                    state = 0
+
+                case 207:
+                    if char in self.digit and char != 0:
+                        state = 208
+                        lexeme += char
+                    elif char == '0':
+                        state = 263
+                        lexeme += char
+                    elif char == '.':
+                        state = 226
+                        lexeme += char
+                    else:
+                        column -= 1
+                        if char is None:
+                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
+                        state = 0
+
+                case 208:
+                    if char in self.digdelim:
+                        state = 209
+                        if char is not None:
+                            self.step_back()
+                    elif char and char.isdigit():
+                        state = 210
+                        lexeme += char
+                    elif char == '.':
+                        state = 226
+                        lexeme += char
+                    else:
+                        column -= 1
+                        if char is None:
+                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
+                        state = 0
+
+                case 209:
+                    column -= 2
+                    tokens.append((lexeme, "int_literal", line, column))
+                    if char is not None:
+                        self.step_back()
+                    state = 0
+
+                case 210:
+                    if char in self.digdelim:
+                        state = 211
+                        if char is not None:
+                            self.step_back()
+                    elif char and char.isdigit():
+                        state = 212
+                        lexeme += char
+                    elif char == '.':
+                        state = 226
+                        lexeme += char
+                    else:
+                        column -= 1
+                        if char is None:
+                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
+                        state = 0
+
+                case 211:
+                    column -= 2
+                    tokens.append((lexeme, "int_literal", line, column))
+                    if char is not None:
+                        self.step_back()
+                    state = 0
+
+                case 212:
+                    if char in self.digdelim:
+                        state = 213
+                        if char is not None:
+                            self.step_back()
+                    elif char and char.isdigit():
+                        state = 214
+                        lexeme += char
+                    elif char == '.':
+                        state = 226
+                        lexeme += char
                     else:
                         column -= 1
                         if char is None:
@@ -4151,14 +4088,15 @@ class Tokenizer:
                     state = 0
 
                 case 214:
-                    if char in self.digit and char != 0:
+                    if char in self.digdelim:
                         state = 215
-                        lexeme += char
-                    elif char == '0':
-                        state = 287
+                        if char is not None:
+                            self.step_back()
+                    elif char and char.isdigit():
+                        state = 216
                         lexeme += char
                     elif char == '.':
-                        state = 241
+                        state = 226
                         lexeme += char
                     else:
                         column -= 1
@@ -4171,232 +4109,127 @@ class Tokenizer:
                         state = 0
 
                 case 215:
-                    if char in self.digdelim:
-                        state = 216
-                        if char is not None:
-                            self.step_back()
-                    elif char and char.isdigit():
-                        state = 217
-                        lexeme += char
-                    elif char == '.':
-                        state = 241
-                        lexeme += char
-                    else:
-                        column -= 1
-                        if char is None:
-                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Missing Delimiter.")
-                        else:
-                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                            if char == '\n':
-                                column = 0
-                        state = 0
+                    column -= 2
+                    tokens.append((lexeme, "int_literal", line, column))
+                    if char is not None:
+                        self.step_back()
+                    state = 0
 
                 case 216:
-                    column -= 2
-                    tokens.append((lexeme, "int_literal", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
+                    if char in self.digdelim:
+                        state = 217
+                        if char is not None:
+                            self.step_back()
+                    elif char and char.isdigit():
+                        state = 218
+                        lexeme += char
+                    elif char == '.':
+                        state = 226
+                        lexeme += char
+                    else:
+                        column -= 1
+                        if char is None:
+                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
+                        state = 0
 
                 case 217:
-                    if char in self.digdelim:
-                        state = 218
-                        if char is not None:
-                            self.step_back()
-                    elif char and char.isdigit():
-                        state = 219
-                        lexeme += char
-                    elif char == '.':
-                        state = 241
-                        lexeme += char
-                    else:
-                        column -= 1
-                        if char is None:
-                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Missing Delimiter.")
-                        else:
-                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                            if char == '\n':
-                                column = 0
-                        state = 0
+                    column -= 2
+                    tokens.append((lexeme, "int_literal", line, column))
+                    if char is not None:
+                        self.step_back()
+                    state = 0
 
                 case 218:
-                    column -= 2
-                    tokens.append((lexeme, "int_literal", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
+                    if char in self.digdelim:
+                        state = 219
+                        if char is not None:
+                            self.step_back()
+                    elif char and char.isdigit():
+                        state = 220
+                        lexeme += char
+                    elif char == '.':
+                        state = 226
+                        lexeme += char
+                    else:
+                        column -= 1
+                        if char is None:
+                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
+                        state = 0
 
                 case 219:
-                    if char in self.digdelim:
-                        state = 220
-                        if char is not None:
-                            self.step_back()
-                    elif char and char.isdigit():
-                        state = 221
-                        lexeme += char
-                    elif char == '.':
-                        state = 241
-                        lexeme += char
-                    else:
-                        column -= 1
-                        if char is None:
-                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Missing Delimiter.")
-                        else:
-                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                            if char == '\n':
-                                column = 0
-                        state = 0
+                    column -= 2
+                    tokens.append((lexeme, "int_literal", line, column))
+                    if char is not None:
+                        self.step_back()
+                    state = 0
 
                 case 220:
-                    column -= 2
-                    tokens.append((lexeme, "int_literal", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
+                    if char in self.digdelim:
+                        state = 221
+                        if char is not None:
+                            self.step_back()
+                    elif char and char.isdigit():
+                        state = 222
+                        lexeme += char
+                    elif char == '.':
+                        state = 226
+                        lexeme += char
+                    else:
+                        column -= 1
+                        if char is None:
+                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
+                        state = 0
 
                 case 221:
-                    if char in self.digdelim:
-                        state = 222
-                        if char is not None:
-                            self.step_back()
-                    elif char and char.isdigit():
-                        state = 223
-                        lexeme += char
-                    elif char == '.':
-                        state = 241
-                        lexeme += char
-                    else:
-                        column -= 1
-                        if char is None:
-                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Missing Delimiter.")
-                        else:
-                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                            if char == '\n':
-                                column = 0
-                        state = 0
+                    column -= 2
+                    tokens.append((lexeme, "int_literal", line, column))
+                    if char is not None:
+                        self.step_back()
+                    state = 0
 
                 case 222:
-                    column -= 2
-                    tokens.append((lexeme, "int_literal", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
+                    if char in self.digdelim:
+                        state = 223
+                        if char is not None:
+                            self.step_back()
+                    elif char and char.isdigit():
+                        state = 224
+                        lexeme += char
+                    elif char == '.':
+                        state = 226
+                        lexeme += char
+                    else:
+                        column -= 1
+                        if char is None:
+                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
+                        state = 0
 
                 case 223:
-                    if char in self.digdelim:
-                        state = 224
-                        if char is not None:
-                            self.step_back()
-                    elif char and char.isdigit():
-                        state = 225
-                        lexeme += char
-                    elif char == '.':
-                        state = 241
-                        lexeme += char
-                    else:
-                        column -= 1
-                        if char is None:
-                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Missing Delimiter.")
-                        else:
-                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                            if char == '\n':
-                                column = 0
-                        state = 0
+                    column -= 2
+                    tokens.append((lexeme, "int_literal", line, column))
+                    if char is not None:
+                        self.step_back()
+                    state = 0
 
                 case 224:
-                    column -= 2
-                    tokens.append((lexeme, "int_literal", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
-                case 225:
                     if char in self.digdelim:
-                        state = 226
-                        if char is not None:
-                            self.step_back()
-                    elif char and char.isdigit():
-                        state = 227
-                        lexeme += char
-                    elif char == '.':
-                        state = 241
-                        lexeme += char
-                    else:
-                        column -= 1
-                        if char is None:
-                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Missing Delimiter.")
-                        else:
-                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                            if char == '\n':
-                                column = 0
-                        state = 0
-
-                case 226:
-                    column -= 2
-                    tokens.append((lexeme, "int_literal", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
-                case 227:
-                    if char in self.digdelim:
-                        state = 228
-                        if char is not None:
-                            self.step_back()
-                    elif char and char.isdigit():
-                        state = 229
-                        lexeme += char
-                    elif char == '.':
-                        state = 241
-                        lexeme += char
-                    else:
-                        column -= 1
-                        if char is None:
-                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Missing Delimiter.")
-                        else:
-                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                            if char == '\n':
-                                column = 0
-                        state = 0
-
-                case 228:
-                    column -= 2
-                    tokens.append((lexeme, "int_literal", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
-                case 229:
-                    if char in self.digdelim:
-                        state = 230
-                        if char is not None:
-                            self.step_back()
-                    elif char and char.isdigit():
-                        state = 239
-                        lexeme += char
-                    elif char == '.':
-                        state = 241
-                        lexeme += char
-                    else:
-                        column -= 1
-                        if char is None:
-                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Missing Delimiter.")
-                        else:
-                            self.errors.append(f"(Line {line}, Column {column}): int literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                            if char == '\n':
-                                column = 0
-                        state = 0
-
-                case 230:
-                    column -= 2
-                    tokens.append((lexeme, "int_literal", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
-                case 239:
-                    if char in self.digdelim:
-                        state = 240
+                        state = 225
                         if char is not None:
                             self.step_back()
                     elif char and char.isdigit():
@@ -4416,16 +4249,209 @@ class Tokenizer:
                                 column = 0
                         state = 0
 
-                case 240:
+                case 225:
                     column -= 2
                     tokens.append((lexeme, "int_literal", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
 
-                case 241:
+                case 226:
                     if char and char.isdigit():
+                        state = 227
+                        lexeme += char
+                    else:
+                        column -= 1
+                        if char is None:
+                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
+                        state = 0
+
+                case 227:
+                    if char in self.digdelim:
+                        state = 228
+                        if char is not None:
+                            self.step_back()
+                    elif char and char.isdigit():
+                        state = 229
+                        lexeme += char
+                    else:
+                        column -= 1
+                        if char is None:
+                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
+                        state = 0
+
+                case 228:
+                    column -= 2
+                    tokens.append((lexeme, "decimal_literal", line, column))
+                    if char is not None:
+                        self.step_back()
+                    state = 0
+
+                case 229:
+                    if char in self.digdelim:
+                        state = 230
+                        if char is not None:
+                            self.step_back()
+                    elif char and char.isdigit():
+                        state = 231
+                        lexeme += char
+                    else:
+                        column -= 1
+                        if char is None:
+                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
+                        state = 0 
+
+                case 230:
+                    column -= 2
+                    tokens.append((lexeme,"decimal_literal", line, column))
+                    if char is not None:
+                        self.step_back()
+                    state = 0
+
+                case 231:
+                    if char in self.digdelim:
+                        state = 232
+                        if char is not None:
+                            self.step_back()
+                    elif char and char.isdigit():
+                        state = 233
+                        lexeme += char
+                    else:
+                        column -= 1
+                        if char is None:
+                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
+                        state = 0
+                
+                case 232:
+                    column -= 2
+                    tokens.append((lexeme,"decimal_literal", line, column))
+                    if char is not None:
+                        self.step_back()
+                    state = 0
+
+                case 233:
+                    if char in self.digdelim:
+                        state = 234
+                        if char is not None:
+                            self.step_back()
+                    elif char and char.isdigit():
+                        state = 235
+                        lexeme += char
+                    else:
+                        column -= 1
+                        if char is None:
+                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
+                        state = 0
+
+                case 234:
+                    column -= 2
+                    tokens.append((lexeme,"decimal_literal", line, column))
+                    if char is not None:
+                        self.step_back()
+                    state = 0
+
+                case 235:
+                    if char in self.digdelim:
+                        state = 236
+                        if char is not None:
+                            self.step_back()
+                    elif char and char.isdigit():
+                        state = 237
+                        lexeme += char
+                    else:
+                        column -= 1
+                        if char is None:
+                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
+                        state = 0
+
+                case 236:
+                    column -= 2
+                    tokens.append((lexeme,"decimal_literal", line, column))
+                    if char is not None:
+                        self.step_back()
+                    state = 0
+
+                case 237:
+                    if char in self.digdelim:
+                        state = 238
+                        if char is not None:
+                            self.step_back()
+                    elif char and char.isdigit():
+                        state = 239
+                        lexeme += char
+                    else:
+                        column -= 1
+                        if char is None:
+                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
+                        state = 0
+
+                case 238:
+                    column -= 2
+                    tokens.append((lexeme,"decimal_literal", line, column))
+                    if char is not None:
+                        self.step_back()
+                    state = 0
+
+                case 239:
+                    if char in self.digdelim:
+                        state = 240
+                        if char is not None:
+                            self.step_back()
+                    elif char and char.isdigit():
+                        state = 241
+                        lexeme += char
+                    else:
+                        column -= 1
+                        if char is None:
+                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Missing Delimiter.")
+                        else:
+                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
+                            if char == '\n':
+                                column = 0
+                        state = 0
+
+                case 240:
+                    column -= 2
+                    tokens.append((lexeme,"decimal_literal", line, column))
+                    if char is not None:
+                        self.step_back()
+                    state = 0
+
+                case 241:
+                    if char in self.digdelim:
                         state = 242
+                        if char is not None:
+                            self.step_back()
+                    elif char and char.isdigit():
+                        state = 243
                         lexeme += char
                     else:
                         column -= 1
@@ -4438,208 +4464,15 @@ class Tokenizer:
                         state = 0
 
                 case 242:
-                    if char in self.digdelim:
-                        state = 243
-                        if char is not None:
-                            self.step_back()
-                    elif char and char.isdigit():
-                        state = 244
-                        lexeme += char
-                    else:
-                        column -= 1
-                        if char is None:
-                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Missing Delimiter.")
-                        else:
-                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                            if char == '\n':
-                                column = 0
-                        state = 0
+                    column -= 2
+                    tokens.append((lexeme,"decimal_literal", line, column))
+                    if char is not None:
+                        self.step_back()
+                    state = 0
 
                 case 243:
-                    column -= 2
-                    tokens.append((lexeme, "decimal_literal", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
-                case 244:
                     if char in self.digdelim:
-                        state = 245
-                        if char is not None:
-                            self.step_back()
-                    elif char and char.isdigit():
-                        state = 246
-                        lexeme += char
-                    else:
-                        column -= 1
-                        if char is None:
-                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Missing Delimiter.")
-                        else:
-                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                            if char == '\n':
-                                column = 0
-                        state = 0 
-
-                case 245:
-                    column -= 2
-                    tokens.append((lexeme,"decimal_literal", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
-                case 246:
-                    if char in self.digdelim:
-                        state = 247
-                        if char is not None:
-                            self.step_back()
-                    elif char and char.isdigit():
-                        state = 248
-                        lexeme += char
-                    else:
-                        column -= 1
-                        if char is None:
-                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Missing Delimiter.")
-                        else:
-                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                            if char == '\n':
-                                column = 0
-                        state = 0
-                
-                case 247:
-                    column -= 2
-                    tokens.append((lexeme,"decimal_literal", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
-                case 248:
-                    if char in self.digdelim:
-                        state = 249
-                        if char is not None:
-                            self.step_back()
-                    elif char and char.isdigit():
-                        state = 250
-                        lexeme += char
-                    else:
-                        column -= 1
-                        if char is None:
-                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Missing Delimiter.")
-                        else:
-                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                            if char == '\n':
-                                column = 0
-                        state = 0
-
-                case 249:
-                    column -= 2
-                    tokens.append((lexeme,"decimal_literal", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
-                case 250:
-                    if char in self.digdelim:
-                        state = 251
-                        if char is not None:
-                            self.step_back()
-                    elif char and char.isdigit():
-                        state = 252
-                        lexeme += char
-                    else:
-                        column -= 1
-                        if char is None:
-                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Missing Delimiter.")
-                        else:
-                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                            if char == '\n':
-                                column = 0
-                        state = 0
-
-                case 251:
-                    column -= 2
-                    tokens.append((lexeme,"decimal_literal", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
-                case 252:
-                    if char in self.digdelim:
-                        state = 253
-                        if char is not None:
-                            self.step_back()
-                    elif char and char.isdigit():
-                        state = 254
-                        lexeme += char
-                    else:
-                        column -= 1
-                        if char is None:
-                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Missing Delimiter.")
-                        else:
-                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                            if char == '\n':
-                                column = 0
-                        state = 0
-
-                case 253:
-                    column -= 2
-                    tokens.append((lexeme,"decimal_literal", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
-                case 254:
-                    if char in self.digdelim:
-                        state = 255
-                        if char is not None:
-                            self.step_back()
-                    elif char and char.isdigit():
-                        state = 256
-                        lexeme += char
-                    else:
-                        column -= 1
-                        if char is None:
-                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Missing Delimiter.")
-                        else:
-                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                            if char == '\n':
-                                column = 0
-                        state = 0
-
-                case 255:
-                    column -= 2
-                    tokens.append((lexeme,"decimal_literal", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
-                case 256:
-                    if char in self.digdelim:
-                        state = 257
-                        if char is not None:
-                            self.step_back()
-                    elif char and char.isdigit():
-                        state = 266
-                        lexeme += char
-                    else:
-                        column -= 1
-                        if char is None:
-                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Missing Delimiter.")
-                        else:
-                            self.errors.append(f"(Line {line}, Column {column}): decimal literal '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                            if char == '\n':
-                                column = 0
-                        state = 0
-
-                case 257:
-                    column -= 2
-                    tokens.append((lexeme,"decimal_literal", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
-                case 266:
-                    if char in self.digdelim:
-                        state = 267
+                        state = 244
                         if char is not None:
                             self.step_back()
                     elif char and char.isdigit():
@@ -4656,7 +4489,7 @@ class Tokenizer:
                                 column = 0
                         state = 0
 
-                case 267:
+                case 244:
                     column -= 2
                     tokens.append((lexeme,"decimal_literal", line, column))
                     if char is not None:
@@ -4664,12 +4497,12 @@ class Tokenizer:
                     state = 0
 
                 #String and letter literals
-                case 268:
+                case 245:
                     if char in self.asciichr:
-                        state = 269
+                        state = 246
                         lexeme += char
                     elif char == '\\':
-                        state = 294
+                        state = 264
                         lexeme += char
                     else:
                         column -= 1
@@ -4683,9 +4516,9 @@ class Tokenizer:
                                 self.step_back()
                         state = 0
 
-                case 269:
+                case 246:
                     if char == "'":
-                        state = 270
+                        state = 247
                         lexeme += char
                     else:
                         self.errors.append(f"(Line {line}, Column {column}): {lexeme} Expected (\').")
@@ -4693,9 +4526,9 @@ class Tokenizer:
                             self.step_back()
                         state = 0
 
-                case 270:
+                case 247:
                     if char in self.letterdelim:
-                        state = 271
+                        state = 248
                         if char is not None:
                             self.step_back()
                     else:
@@ -4710,19 +4543,19 @@ class Tokenizer:
                                 self.step_back()
                         state = 0
 
-                case 271:
+                case 248:
                     column -= 2
                     tokens.append((lexeme, "letter_literal", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
 
-                case 272:
+                case 249:
                     if char in self.asciistr:
-                        state = 272
+                        state = 249
                         lexeme += char
                     elif char == '"':
-                        state = 273
+                        state = 250
                         lexeme += char
                     else:
                         self.errors.append(f"(Line {line}, Column {column}): {lexeme} Expected character ( \" ).")
@@ -4730,9 +4563,9 @@ class Tokenizer:
                             self.step_back()
                         state = 0
 
-                case 273:
+                case 250:
                     if char in self.strdelim:
-                        state = 274
+                        state = 251
                         if char is not None:
                             self.step_back()
                     else:
@@ -4745,7 +4578,7 @@ class Tokenizer:
                                 self.step_back()
                         state = 0
 
-                case 274:
+                case 251:
                     column -= 2
                     tokens.append((lexeme, "string_literal", line, column))
                     if char is not None:
@@ -4754,12 +4587,12 @@ class Tokenizer:
 
 
                 # Identifier (State 275 - 278)
-                case 275: 
+                case 252: 
                     if char and (char.isalpha() or char.isdigit() or char == '_'):
                         lexeme += char
-                        state = 277                        
+                        state = 254                  
                     elif char in self.iddelim:
-                        state = 276
+                        state = 253
                         if char is not None:
                             self.step_back()
                     else:
@@ -4772,14 +4605,14 @@ class Tokenizer:
                                 column = 0
                         state = 0
 
-                case 276:
+                case 253:
                     column -= 2
                     tokens.append((lexeme, "identifier", line, column))
                     if char is not None:
                         self.step_back()
                     state = 0
 
-                case 277:
+                case 254:
                     if char and (char.isalpha() or char.isdigit() or char == '_'):
                         lexeme += char
                         
@@ -4788,7 +4621,7 @@ class Tokenizer:
                             state = 0
 
                     elif char in self.iddelim:
-                        state = 278
+                        state = 255
                         if char is not None:
                             self.step_back()
                     
@@ -4802,7 +4635,7 @@ class Tokenizer:
                                 column = 0
                         state = 0 
 
-                case 278:
+                case 255:
                     column -= 2
                     tokens.append((lexeme, "identifier", line, column))
                     if char is not None:
@@ -4811,28 +4644,28 @@ class Tokenizer:
 
                 #Comments
 
-                case 280:
+                case 256:
                     if char in self.ascii:
-                        state = 280
+                        state = 256
                     elif char == '\n':
                         line += 1
-                        state = 281
+                        state = 257
                     else:
                         if char is not None:
                             self.step_back()
                         state = 0
 
-                case 281:
+                case 257:
                     if char is not None:
                         self.step_back()
                     state = 0
 
-                case 282:
+                case 258:
                     if char in self.asciicmnt:
-                        state = 283
+                        state = 259
                     elif char == '\n':
                         line += 1
-                        state = 283
+                        state = 259
                     elif char == '*':
                         state = 284
                     else:
@@ -4840,14 +4673,14 @@ class Tokenizer:
                             self.step_back()
                         state = 0
 
-                case 283:
+                case 259:
                     if char in self.asciicmnt:
-                        state = 283
+                        state = 259
                     elif char == '\n':
                         line += 1
-                        state = 283
-                    elif char == '*':
-                        state = 284
+                        state = 259
+                    elif char == '*' and char + 1 == '/':
+                        state = 260
                     else:
                         column -= 1
                         if char is None:
@@ -4860,9 +4693,9 @@ class Tokenizer:
                                 column = 0
                         state = 0
 
-                case 284:
+                case 260:
                     if char == '/':
-                        state = 285
+                        state = 261
                     else:
                         column -= 1
                         if char is None:
@@ -4873,24 +4706,24 @@ class Tokenizer:
                                 column = 0
                         state = 0
 
-                case 285:
+                case 261:
                     if char == '\n':
                         line += 1
-                        state = 286
+                        state = 262
                     else:
                         if char is not None:
                             self.step_back()
                         state = 0
 
-                case 286:
+                case 262:
                     if char is not None:
                         self.step_back()
                     state = 0
 
                 #Period
-                case 287:
+                case 263:
                     if char == '.':
-                        state = 241
+                        state = 226
                         lexeme += char
                     elif char and char.isdigit():
                         lexeme += char
@@ -4900,74 +4733,9 @@ class Tokenizer:
                         self.errors.append(f"(Line {line}, Column {column}): Negative zero can only be followed by a period.")
                         state = 0
 
-                case 288:
-                    if char in self.delim5:
-                        state = 289
-                        if char is not None:
-                            self.step_back()
-                    elif char == '=':
-                        state = 290
-                        lexeme += char
-                    else:
-                        column -= 1
-                        if char is None:
-                            self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Missing Delimiter.")
-                        else:
-                            self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                            if char == '\n':
-                                column = 0
-                        state = 0
-
-                case 289:
-                    column -= 2
-                    tokens.append((lexeme, "=", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
-                case 290:
-                    if char in self.delim5:
-                        state = 291
-                        if char is not None:
-                            self.step_back()
-                    else:
-                        column -= 1
-                        if char is None:
-                            self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Missing Delimiter.")
-                        else:
-                            self.errors.append(f"(Line {line}, Column {column}): Symbol '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                            if char == '\n':
-                                column = 0
-                        state = 0
-
-                case 291:
-                    column -= 2
-                    tokens.append((lexeme, "==", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
-                case 292:
-                    if char in self.alphabet:
-                        state = 293
-                        if char is not None:
-                            self.step_back()
-                    else:
-                        self.errors.append(f"(Line {line}, Column {column}): Invalid Delimiter ( {repr(char)} ).")
-                        if char == '\n':
-                            column = 0
-                        state = 0
-
-                case 293:
-                    column -= 2
-                    tokens.append((lexeme, ".", line, column))
-                    if char is not None:
-                        self.step_back()
-                    state = 0
-
-                case 294:
+                case 264:
                     if char == '0':
-                        state = 269
+                        state = 246
                         lexeme += char
                     else:
                         column -= 1

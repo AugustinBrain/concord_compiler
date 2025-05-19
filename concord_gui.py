@@ -840,6 +840,7 @@ class LexicalAnalyzerGUI(QMainWindow):
         
         parser = CFG.LL1Parser(CFG.cfg, CFG.parse_table, CFG.follow_set)
         success, errors, parse_tree = parser.parse(self.tokens)
+        parser.print_errors()
         
         if success:
             self.terminal.setText("<span style='color:#81C784;'>✅ Syntax analysis completed successfully.</span>")

@@ -592,3 +592,43 @@ def check_ambiguity(cfg, predict_set):
         print("\nNo ambiguities found in the CFG.")
 
 check_ambiguity(cfg, predict_set)
+
+
+
+
+
+# Run Parser
+# parser = LL1Parser(cfg, parse_table, follow_set)
+# parser.parse(tokens)
+
+# for non_terminal, productions in cfg.items():
+#     for i, item in enumerate(productions):
+#         print(f"-{productions[i]}-")
+
+# print("First Sets:")
+# for non_terminal, first in first_set.items():
+#     first_str = ", ".join(first)
+#     print(f"-[{first_str}]-")
+
+# print("\nFollow Sets:")
+# for non_terminal, follow in follow_set.items():
+#     follow_str = ", ".join(follow)
+#     print(f"-[{follow_str}]-")
+
+# def display_predict_sets(predict_set):
+#     print("\nPredict Sets:")
+#     for (non_terminal, production), predict in predict_set.items():
+#         production_str = " ".join(production)
+#         print(f"First({production_str})=")
+
+# display_predict_sets(predict_set)
+
+# def display_parse_table(parse_table):
+#     print()
+#     for non_terminal, rules in parse_table.items():
+#         print(f"{non_terminal}")
+#         for terminal, production in rules.items():
+#             print(f"  Terminal: {terminal} -> Production: {production}")
+#         print()  
+
+# display_parse_table(parse_table)
