@@ -51,6 +51,11 @@ class Tokenizer:
             self.index += 1
             return char
         return None
+
+    def peek_char(self):
+        if self.index < len(self.code):
+            return self.code[self.index]
+        return None
     
     def step_back(self):
         if self.index > 0:
@@ -3330,9 +3335,9 @@ class Tokenizer:
                         if char is not None:
                             self.step_back()
                     elif char == '/':
-                        state = 280
+                        state = 256
                     elif char == '*':
-                        state = 282
+                        state = 258
                     elif char == '=':
                         state = 157
                         lexeme += char
@@ -4679,19 +4684,11 @@ class Tokenizer:
                     elif char == '\n':
                         line += 1
                         state = 259
-                    elif char == '*' and char + 1 == '/':
+                    elif char == '*' and self.peek_char() == '/':
                         state = 260
                     else:
                         column -= 1
-                        if char is None:
-                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Missing Delimiter.")
-                        else:
-                            self.errors.append(f"(Line {line}, Column {column}): '{lexeme}' Invalid Delimiter ( {repr(char)} ).")
-                            if char == '\n':
-                                column = 0
-                            if char == '\n':
-                                column = 0
-                        state = 0
+                        state = 259
 
                 case 260:
                     if char == '/':

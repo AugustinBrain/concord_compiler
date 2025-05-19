@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import (
     QWidget, QTableWidget, QTableWidgetItem, QHeaderView, QSplitter, QPlainTextEdit,
     QHBoxLayout, QLineEdit, QInputDialog, QStatusBar, QToolBar, QAction, QSizePolicy
 )
-from PyQt5.QtGui import QColor, QPainter, QFont, QTextFormat, QSyntaxHighlighter, QTextCharFormat, QTextCursor, QIcon
+from PyQt5.QtGui import QColor, QPainter, QFont, QTextFormat, QSyntaxHighlighter, QTextCharFormat, QTextCursor, QIcon, QTextOption
 from PyQt5.QtCore import Qt, QRect, QSize, QRegExp, QEvent, QTimer, QEventLoop, pyqtSignal, QObject, QMetaType
 
 
@@ -537,6 +537,10 @@ class LexicalAnalyzerGUI(QMainWindow):
         self.terminal.setFont(QFont("Consolas", 11))
         self.terminal.setReadOnly(True)
         self.terminal.document().setMaximumBlockCount(5000)  # Increase line limit
+
+        self.terminal.setWordWrapMode(QTextOption.WrapAtWordBoundaryOrAnywhere)
+        self.terminal.setLineWrapMode(QTextEdit.WidgetWidth)
+
         self.terminal.setStyleSheet("""
             QTextEdit {
                 background: #202020;
@@ -752,7 +756,23 @@ class LexicalAnalyzerGUI(QMainWindow):
     
     # Signal handler methods
     def update_terminal(self, text):
-        self.terminal.append(text)
+        # Escape HTML special characters to prevent them from being interpreted as tags
+        import html
+        escaped_text = html.escape(text)
+        
+        # Preserve whitespace by using pre-formatted HTML tags
+        # If there are leading spaces, replace them with non-breaking spaces
+        if escaped_text.startswith(" "):
+            # Count leading spaces
+            leading_spaces = len(escaped_text) - len(escaped_text.lstrip())
+            # Replace them with non-breaking spaces
+            escaped_text = "&nbsp;" * leading_spaces + escaped_text[leading_spaces:]
+        
+        # Wrap in a pre-formatted span to preserve spacing
+        formatted_text = f"<span style='white-space: pre;'>{escaped_text}</span>"
+        
+        self.terminal.append(formatted_text)
+        
         # Ensure cursor is at the end and visible
         cursor = self.terminal.textCursor()
         cursor.movePosition(QTextCursor.End)
@@ -760,7 +780,10 @@ class LexicalAnalyzerGUI(QMainWindow):
         self.terminal.ensureCursorVisible()
     
     def display_error(self, error_text):
-        self.terminal.append(f"<span style='color:#FF6B6B;'>Error: {error_text}</span>")
+        # Escape HTML special characters to prevent them from being interpreted as tags
+        import html
+        escaped_text = html.escape(error_text)
+        self.terminal.append(f"<span style='color:#FF6B6B;'>Error: {escaped_text}</span>")
     
     def request_input(self, prompt):
         self.terminal.append(f"<span style='color:#4FC3F7;'>{prompt}</span>")
@@ -831,6 +854,7 @@ class LexicalAnalyzerGUI(QMainWindow):
         self.run_syntax_analysis()
 
     def run_syntax_analysis(self):
+        import html
         self.terminal.clear()
         self.statusBar.showMessage("Running syntax analysis...", 2000)
 
@@ -842,14 +866,26 @@ class LexicalAnalyzerGUI(QMainWindow):
         success, errors, parse_tree = parser.parse(self.tokens)
         parser.print_errors()
         
-        if success:
-            self.terminal.setText("<span style='color:#81C784;'>✅ Syntax analysis completed successfully.</span>")
-            self.semantic_button.setEnabled(True)
-            self.statusBar.showMessage("Syntax analysis completed successfully", 3000)
-        else:
-            self.terminal.setText("<span style='color:#FF6B6B;'>" + "<br>".join(errors) + "</span>")
+        if not success:
+            # Create a formatted HTML representation of each error
+            error_messages = []
+            for error in errors:
+                # Escape HTML special characters like < and > to prevent them from being interpreted as tags
+                escaped_error = html.escape(error)
+                formatted_error = f"<span style='color:#FF6B6B;'> {escaped_error}</span>"
+                error_messages.append(formatted_error)
+            
+            # Join all errors with HTML break tags
+            error_html = "<br>".join(error_messages)
+            
+            # Set the HTML content to the terminal
+            self.terminal.setHtml(error_html)
             self.semantic_button.setEnabled(False)
             self.statusBar.showMessage("Syntax analysis completed with errors", 3000)
+        else:
+            self.terminal.setHtml("<span style='color:#81C784;'>✅ Syntax analysis completed successfully.</span>")
+            self.semantic_button.setEnabled(True)
+            self.statusBar.showMessage("Syntax analysis completed successfully", 3000)
 
     def semantic_button_clicked(self):
         self.run_semantic_analysis()
