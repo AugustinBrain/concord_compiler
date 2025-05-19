@@ -1027,7 +1027,13 @@ class Semantic:
                         if expected_mapped_type != received_mapped_type:
                             # Special case: allow numeric type compatibility
                             numeric_types = ["int_literal", "decimal_literal", "bool"]
-                            if not (expected_mapped_type in numeric_types and received_mapped_type in numeric_types):
+                            
+                            # Special case: allow string and string-related types to be compatible
+                            string_types = ["string", "string_literal"]
+                            
+                            # Check if the types are compatible within their groups
+                            if not ((expected_mapped_type in numeric_types and received_mapped_type in numeric_types) or
+                                    (expected_mapped_type in string_types and received_mapped_type in string_types)):
                                 self.errors.append(
                                     f"⚠️ Semantic Error at (line {line}, column {column}): Argument type mismatch in '{lexeme}' at position {i+1}: Expected '{expected_type}', got '{received_type}'."
                                 )
@@ -1495,7 +1501,7 @@ class Semantic:
                     # First increment past the identifier
                     self.index += 1
                     
-                    # Check if next token is a bracket
+                    # Check if next token is a bracket for indexing
                     if self.index < len(self.tokens) and self.tokens[self.index][0] == "[":
                         self.index += 1  # Move past first opening bracket
                         
@@ -1540,9 +1546,14 @@ class Semantic:
                         else:
                             operand_stack.append(type_mapping.get(symbol.data_type, symbol.data_type))
                     else:
-                        # Error: Array variable used without indexing
-                        self.errors.append(f"⚠️ Semantic Error at (line {line}, column {column}): Array variable '{lexeme}' must have index")
-                        return "error"
+                        # KEY FIX: Don't require indexing for strings when used as whole variables
+                        if symbol.dimension > 0:  # Only require indexing for arrays, not for strings
+                            # Error: Array variable used without indexing
+                            self.errors.append(f"⚠️ Semantic Error at (line {line}, column {column}): Array variable '{lexeme}' must have index")
+                            return "error"
+                        else:
+                            # For non-indexed strings, push the string type
+                            operand_stack.append(symbol.data_type)
                 
                 elif symbol.symbol_type == "function":  # Is a function call
                     self.index += 1  # Move past function name

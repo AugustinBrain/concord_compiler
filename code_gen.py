@@ -542,12 +542,12 @@ class CodeGenerator:
             func_name = "main"
             brace_index = index + 2
             param_start = index + 2  # Start of parameters for main
-        elif tokens[index][0] in ['int', 'decimal', 'letter', 'string', 'bool', 'void', 'empty']:
+        elif tokens[index][0] == 'empty':
             # Standard function with return type
-            return_type = self._map_datatype(tokens[index][0])
             func_name = tokens[index + 1][0]
+            param_start = index + 3  # Skip 'task', function name, and opening paren
+            return_type = "void"  # Default for task
             brace_index = index + 3  # Skip past return type, name, and opening parenthesis
-            param_start = index + 3  # Start of parameters
         else:
             # Default case, shouldn't normally be reached
             return_type = "int"
@@ -602,9 +602,9 @@ class CodeGenerator:
                 # Add parameter to variable types for this scope
                 self.variable_types[self.current_scope][param_name] = param_type
         
-        # Map 'empty' to 'void' for C output
-        if return_type == 'empty':
-            return_type = 'void'
+        # # Map 'empty' to 'void' for C output
+        # if return_type == 'empty':
+        #     return_type = 'void'
         
         # Generate the function declaration
         if func_name == 'main':
@@ -792,7 +792,6 @@ class CodeGenerator:
             'letter': 'char',
             'string': 'char*',
             'bool': 'bool',
-            'empty': 'void',
             'void': 'void'
         }
         
@@ -846,7 +845,7 @@ class CodeGenerator:
         """Check if tokens starting at index represent a variable declaration"""
         if index < len(tokens):
             # Check if it's a built-in data type
-            datatypes = ['int', 'string', 'double', 'decimal', 'letter', 'char', 'bool', 'empty']
+            datatypes = ['int', 'string', 'double', 'decimal', 'letter', 'char', 'bool']
             if tokens[index][0] in datatypes:
                 return True
                 
@@ -976,8 +975,6 @@ class CodeGenerator:
 
         # Build the declaration string
         declaration = f"{'' if not is_const else 'const '}{mapped_datatype}"
-        if mapped_datatype == "empty":
-            declaration = "void"
         if datatype == "string" and tokens[index + 2][0] == '[':
             datatype = "string_arr"
             
