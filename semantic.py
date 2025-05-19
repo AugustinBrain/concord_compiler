@@ -465,12 +465,12 @@ class Semantic:
         function_name, token_type, line, column = self.tokens[self.index]  # Get function name
         conditions = {"if", "elseif", "while"}
 
-        # Check if function name is already declared in global scope
+        # Check if function already declared
         if function_name in self.symbol_table["global"]:
             self.errors.append(
                 f"⚠️ Semantic Error at (line {line}, column {column}): '{function_name}' is already declared."
             )
-            # return
+            
         
         # Create a new scope for this function
         self.symbol_table[function_name] = {}
@@ -1189,14 +1189,13 @@ class Semantic:
         # Operator precedence levels (lower number = higher precedence)
         precedence = {
             "!": 1,           # Logical NOT (unary)
-            "**": 2,          # Exponentiation
-            "*": 3, "/": 3, "%": 3,  # Multiplicative
-            "+": 4, "-": 4,   # Additive
-            "<": 5, ">": 5, "<=": 5, ">=": 5,  # Relational
-            "==": 6, "!=": 6, # Equality
-            "ins": 7, "notin": 7, "is": 7, "isnot": 7,  # Membership/identity
-            "&&": 8,          # Logical AND
-            "||": 9           # Logical OR
+            "*": 2, "/": 2, "%": 2,  # Multiplicative
+            "+": 3, "-": 3,   # Additive
+            "<": 4, ">": 4, "<=": 4, ">=": 4,  # Relational
+            "==": 5, "!=": 5, # Equality
+            "ins": 6, "notin": 6, "is": 6, "isnot": 6,  # Membership/identity
+            "&&": 7,          # Logical AND
+            "||": 8           # Logical OR
         }
         
         # Define result types for different operations
@@ -1439,9 +1438,9 @@ class Semantic:
                 if self.index < len(self.tokens) and self.tokens[self.index][0] == "(":
                     self.index += 1  # Move past '('
                     
-                    # Check if there are any arguments (should be none for reads)
+                    
                     if self.tokens[self.index][0] != ")":
-                        # Process parameters if any (which might be an error for reads)
+                        
                         while self.index < len(self.tokens):
                             param_type = self.validate_expression(entered_param=True)
                             if self.tokens[self.index][0] == ")":
@@ -1494,8 +1493,7 @@ class Semantic:
                         self.errors.append(f"⚠️ Semantic Error at (line {line}, column {column}): Variable '{lexeme}' is not an array")
                         return "error"
 
-                # Handle array access - FIX HERE
-                # Add in the array access handling section:
+                # array access handling 
                 if symbol.dimension > 0 or symbol.data_type == "string":  # Check if it's an array OR a string
                     # First increment past the identifier
                     self.index += 1
@@ -1538,14 +1536,14 @@ class Semantic:
                                     self.errors.append(f"⚠️ Semantic Error at (line {line}, column {column}): 2D Array variable '{lexeme}' missing second index")
                                     return "error"
                         
-                        # Important change: Push the correct type to stack
+
                         # For strings, indexing should return letter_literal
                         if symbol.data_type == "string":
                             operand_stack.append("letter_literal")
                         else:
                             operand_stack.append(type_mapping.get(symbol.data_type, symbol.data_type))
                     else:
-                        # KEY FIX: Don't require indexing for strings when used as whole variables
+                        # don't require indexing for strings when used as whole variables
                         if symbol.dimension > 0:  # Only require indexing for arrays, not for strings
                             # Error: Array variable used without indexing
                             self.errors.append(f"⚠️ Semantic Error at (line {line}, column {column}): Array variable '{lexeme}' must have index")

@@ -339,6 +339,28 @@ def compute_first_set(cfg):
 
     return first_set
 
+def print_first_sets(first_sets, cfg):
+    """
+    Prints the First sets in a formatted way, following the order of non-terminals in the CFG
+    
+    Args:
+        first_sets: Dictionary mapping non-terminals to their First sets
+        cfg: The original CFG dictionary to maintain the order
+    """
+    print("First Sets:")
+    
+    # Print non-terminals in the same order as in the CFG
+    for symbol in cfg.keys():
+        # Convert set to sorted list for consistent output
+        first_set = sorted(list(first_sets[symbol]))
+        
+        # Format the output according to the requested style
+        print(f'    "{symbol}": {first_set},')
+
+# Print the First sets
+print("First Sets:")
+print_first_sets(compute_first_set(cfg), cfg)
+
 def compute_follow_set(cfg, start_symbol, first_set):
     follow_set = {non_terminal: set() for non_terminal in cfg.keys()}
     follow_set[start_symbol].add("$")  
@@ -410,7 +432,76 @@ def gen_parse_table():
 
     return parse_table  
 
-first_set = compute_first_set(cfg)
+first_set = {
+    "<program>": ['bool', 'decimal', 'empty', 'fixed', 'int', 'letter', 'main', 'string', 'task', 'unit'],
+    "<global_dec>": ['bool', 'decimal', 'fixed', 'int', 'letter', 'string', 'unit', 'λ'],
+    "<global_dec_tail>": ['bool', 'decimal', 'fixed', 'int', 'letter', 'string', 'unit'],
+    "<data_type>": ['bool', 'decimal', 'int', 'letter', 'string'],
+    "<literal>": ['decimal_literal', 'false', 'int_literal', 'letter_literal', 'string_literal', 'true'],
+    "<num_literal>": ['decimal_literal', 'int_literal'],
+    "<bool_literal>": ['false', 'true'],
+    "<fixed_tail>": [',', ';'],
+    "<dec_tail>": [',', ';', '=', '['],
+    "<variable_tail>": [',', ';', '='],
+    "<initial_tail>": [',', ';'],
+    "<array_format>": [']', 'int_literal'],
+    "<array_val>": ['decimal_literal', 'false', 'int_literal', 'letter_literal', 'string_literal', 'true', 'λ'],
+    "<size>": ['int_literal'],
+    "<array_tail>": [';', '=', '['],
+    "<array_2d_tail>": [';', '='],
+    "<array_literal_tail>": [',', 'λ'],
+    "<group_tail>": [',', 'λ'],
+    "<global_unit_tail>": ['identifier', '{'],
+    "<global_initial_unit>": [';', '='],
+    "<member_dec>": ['bool', 'decimal', 'int', 'letter', 'string', 'λ'],
+    "<unit_val>": ['decimal_literal', 'false', 'int_literal', 'letter_literal', 'string_literal', 'true', 'λ'],
+    "<unit_val_tail>": [',', 'λ'],
+    "<function_list>": ['empty', 'task', 'λ'],
+    "<function_dec>": ['empty', 'task'],
+    "<parameter>": ['bool', 'decimal', 'int', 'letter', 'string', 'λ'],
+    "<param_list>": ['bool', 'decimal', 'int', 'letter', 'string'],
+    "<param_tail>": [',', 'λ'],
+    "<local_dec>": ['bool', 'decimal', 'fixed', 'int', 'letter', 'string', 'unit', 'λ'],
+    "<local_dec_tail>": ['bool', 'decimal', 'fixed', 'int', 'letter', 'string', 'unit'],
+    "<statement_list>": ['++', '--', 'display', 'for', 'identifier', 'if', 'select', 'try', 'while', 'λ'],
+    "<option_statement_list>": ['++', '--', 'display', 'for', 'identifier', 'if', 'select', 'try', 'while', 'λ'],
+    "<statement_tail>": ['++', '--', 'display', 'for', 'identifier', 'if', 'select', 'try', 'while'],
+    "<statement_id_tail>": ['%=', '(', '**=', '*=', '++', '+=', '--', '-=', '.', '/=', '=', '['],
+    "<access_arr_tail>": ['[', 'λ'],
+    "<inc_dec_operator>": ['++', '--'],
+    "<argument_list>": ['(', 'decimal_literal', 'false', 'identifier', 'int_literal', 'letter_literal', 'string_literal', 'true', 'λ'],        
+    "<argument_tail>": [',', 'λ'],
+    "<local_unit_tail>": ['identifier', '{'],
+    "<local_initial_unit>": [';', '='],
+    "<assignment_op>": ['%=', '**=', '*=', '+=', '-=', '/=', '='],
+    "<assign_val>": ['!', '(', 'decimal_literal', 'false', 'identifier', 'int_literal', 'letter_literal', 'reads', 'string_literal', 'true'],  
+    "<expression>": ['!', '(', 'decimal_literal', 'false', 'identifier', 'int_literal', 'letter_literal', 'string_literal', 'true'],
+    "<expression_tail>": ['!=', '%', '&&', '*', '**', '+', '-', '/', '<', '<=', '==', '>', '>=', 'ins', 'is', 'isnot', 'notin', '||', 'λ'],    
+    "<expression_operand>": ['!', '(', 'decimal_literal', 'false', 'identifier', 'int_literal', 'letter_literal', 'string_literal', 'true'],   
+    "<expression_operator>": ['!=', '%', '&&', '*', '**', '+', '-', '/', '<', '<=', '==', '>', '>=', 'ins', 'is', 'isnot', 'notin', '||'],     
+    "<value>": ['decimal_literal', 'false', 'identifier', 'int_literal', 'letter_literal', 'string_literal', 'true'],
+    "<value_id_tail>": ['(', '.', '[', 'λ'],
+    "<arithmetic_exp>": ['(', 'decimal_literal', 'false', 'identifier', 'int_literal', 'letter_literal', 'string_literal', 'true'],
+    "<arithmetic_tail>": ['%', '*', '**', '+', '-', '/', 'λ'],
+    "<arithmetic_operand>": ['(', 'decimal_literal', 'false', 'identifier', 'int_literal', 'letter_literal', 'string_literal', 'true'],        
+    "<arithmetic_operator>": ['%', '*', '**', '+', '-', '/'],
+    "<cond_stmt>": ['if', 'select'],
+    "<if_stmt>": ['if'],
+    "<elseif_stmt>": ['elseif', 'λ'],
+    "<else_stmt>": ['else', 'λ'],
+    "<select_stmt>": ['select'],
+    "<options>": ['option', 'λ'],
+    "<pattern>": ['decimal_literal', 'false', 'identifier', 'int_literal', 'letter_literal', 'string_literal', 'true'],
+    "<loop_stmt>": ['for', 'try', 'while'],
+    "<condition>": ['!', '(', 'decimal_literal', 'false', 'identifier', 'int_literal', 'letter_literal', 'string_literal', 'true'],
+    "<condition_tail>": ['!=', '&&', '<', '<=', '==', '>', '>=', 'ins', 'is', 'isnot', 'notin', '||', 'λ'],
+    "<condition_operand>": ['!', '(', 'decimal_literal', 'false', 'identifier', 'int_literal', 'letter_literal', 'string_literal', 'true'],    
+    "<condition_operator>": ['!=', '&&', '<', '<=', '==', '>', '>=', 'ins', 'is', 'isnot', 'notin', '||'],
+    "<display_content>": ['identifier', 'string_literal', 'λ'],
+    "<display_tail>": ['+', 'λ'],
+    "<return_stmt>": ['return'],
+    "<displayval>": ['identifier', 'string_literal']
+}
 follow_set = compute_follow_set(cfg, "<program>", first_set)
 predict_set = compute_predict_set(cfg, first_set, follow_set)
 parse_table = gen_parse_table()
