@@ -630,18 +630,22 @@ class Semantic:
                     lexeme, token_type, line, column = self.tokens[self.index]   
                     self.index += 1 # Move past if
                     condition_type = self.validate_expression()
-                    if self.tokens[self.index][1] == "{":
+
+                    if condition_type != "error" and self.index < len(self.tokens) and self.tokens[self.index][1] == "{":
                         brace_level += 1
-                    type_mapping = {
-                        "int_literal": "int",
-                        "decimal_literal": "decimal",
-                        "letter_literal": "letter",
-                        "string_literal": "string",
-                        "bool": "bool"
-                    }
-                    target_type = "bool"
-                    if self.is_type_mismatch(target_type, condition_type, lexeme, line, column):
-                        return
+                
+                    # If we already have an error from validate_expression, don't do type checking
+                    if condition_type != "error":
+                        type_mapping = {
+                            "int_literal": "int",
+                            "decimal_literal": "decimal",
+                            "letter_literal": "letter",
+                            "string_literal": "string",
+                            "bool": "bool"
+                        }
+                        target_type = "bool"
+                        if self.is_type_mismatch(target_type, condition_type, lexeme, line, column):
+                            return
 
                 elif token_type == "select":
                     self.index += 1  # Move past 'select'

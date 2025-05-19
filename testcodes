@@ -199,3 +199,32 @@ main() {
 
 
 
+bool 
+decimal 
+default:
+display( 
+else{
+elseif( 
+empty 
+false;
+fixed 
+for( 
+if( 
+int 
+is 
+isnot 
+letter 
+main(){
+ 
+}
+option 
+reads();
+return 
+select( 
+skip;
+string 
+task 
+true;
+try{
+unit 
+while( 
