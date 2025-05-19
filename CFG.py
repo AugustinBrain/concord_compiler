@@ -208,9 +208,7 @@ cfg = {
         ["&&"],
         ["||"],
         ["is"],
-        ["isnot"],
-        ["ins"],
-        ["notin"]],
+        ["isnot"]],
 
     "<value>": [
         ["<literal>"],
@@ -286,7 +284,7 @@ cfg = {
 
     "<condition_operator>": [
         ["=="], ["!="], ["<"], [">"], ["<="], [">="], 
-        ["&&"], ["||"], ["is"], ["isnot"], ["ins"], ["notin"]],
+        ["&&"], ["||"], ["is"], ["isnot"]],
 
     "<display_content>": [
         ["<displayval>", "<display_tail>"],
