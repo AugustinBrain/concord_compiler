@@ -447,47 +447,139 @@ class ParseTreeNode:
         """Print the parse tree with proper indentation."""
         print(self.__str__())
 
+
+def compute_first_set(cfg):
+    first_set = {non_terminal: set() for non_terminal in cfg.keys()}
+
+    def first_of(symbol):
+        if symbol not in cfg:
+            return {symbol} 
+
+        if symbol in first_set and first_set[symbol]:
+            return first_set[symbol]
+
+        result = set()
+        
+        for production in cfg[symbol]:
+            for sub_symbol in production:
+                if sub_symbol not in cfg: # terminal
+                    result.add(sub_symbol)
+                    break  
+                else: # non-terminal
+                    sub_first = first_of(sub_symbol)
+                    result.update(sub_first - {"λ"})  
+                    if "λ" not in sub_first:
+                        break  
+            
+            else: # all symbols in the production derive λ
+                result.add("λ")
+
+        first_set[symbol] = result
+        return result
+
+    for non_terminal in cfg:
+        first_of(non_terminal)
+
+    return first_set
+
+def compute_follow_set(cfg, start_symbol, first_set):
+    follow_set = {non_terminal: set() for non_terminal in cfg.keys()}
+    follow_set[start_symbol].add("$")  
+
+    changed = True  
+
+    while changed:
+        changed = False 
+    
+        for non_terminal, productions in cfg.items():
+            for production in productions:
+                for i, item in enumerate(production):
+                    if item in cfg:  # nt only
+                        follow_before = follow_set[item].copy()
+
+                        if i + 1 < len(production):  # A -> <alpha>B<beta>
+                            beta = production[i + 1]
+                            if beta in cfg:  # if <beta> is a non-terminal
+                                follow_set[item].update(first_set[beta] - {"λ"})
+                                if "λ" in first_set[beta]:
+                                    follow_set[item].update(follow_set[beta])
+                            else:  # if <beta> is a terminal
+                                follow_set[item].add(beta)
+                        else:  # nothing follows B
+                            follow_set[item].update(follow_set[non_terminal])
+
+                        if follow_set[item] != follow_before:
+                            changed = True  
+
+    return follow_set
+
+def compute_predict_set(cfg, first_set, follow_set):
+    predict_set = {}  
+
+    for non_terminal, productions in cfg.items():
+        for production in productions:
+            production_key = (non_terminal, tuple(production))  # A = (A,(prod))
+            predict_set[production_key] = set()
+
+            first_alpha = set()
+            for symbol in production:
+                if symbol in first_set:  # non-terminal
+                    first_alpha.update(first_set[symbol] - {"λ"})
+                    if "λ" not in first_set[symbol]:
+                        break
+                else:  # terminal
+                    first_alpha.add(symbol)
+                    break
+            else:  
+                first_alpha.add("λ")
+
+            predict_set[production_key].update(first_alpha - {"λ"})
+
+            # if λ in first_alpha, add follow set of lhs to predict set
+            if "λ" in first_alpha:
+                predict_set[production_key].update(follow_set[non_terminal])
+
+    return predict_set
+
+def gen_parse_table(predict_set):
+    parse_table = {}
+    for (non_terminal, production), predict in predict_set.items():
+        if non_terminal not in parse_table:
+            parse_table[non_terminal] = {}
+        for terminal in predict:
+            if terminal in parse_table[non_terminal]:
+                raise ValueError(f"Grammar is not LL(1): Conflict in parse table for {non_terminal} and {terminal}")
+            parse_table[non_terminal][terminal] = production
+
+    return parse_table
+
 class LL1Parser:
     def __init__(self, cfg, parse_table, follow_set):
         self.cfg = cfg
         self.parse_table = parse_table
         self.follow_set = follow_set
-        self.node_stack = []  # Stack for parse tree nodes
         self.symbol_stack = []  # Stack for grammar symbols
         self.input_tokens = []
         self.index = 0
-        self.parse_tree = None
         self.errors = []
 
     def parse(self, tokens):
-        # Initialize stacks
+        # Initialize stack
         self.symbol_stack = ["$", "<program>"]  # Start with end marker and start symbol
         self.input_tokens = tokens + [("$", "$", -1, 0)]  # Append EOF
         self.index = 0
         self.errors = []
         
-        # Create root node for the parse tree
-        root = ParseTreeNode("<program>")
-        self.node_stack = [None, root]  # Match with symbol stack ($ has no node)
-        self.parse_tree = root
-        
         while self.symbol_stack:
             top_symbol = self.symbol_stack.pop()
-            top_node = self.node_stack.pop()
             
             current_lexeme = self.input_tokens[self.index][0]
             current_token = self.input_tokens[self.index][1]  # Token type
             current_line = self.input_tokens[self.index][2]   # Line number
             current_column = self.input_tokens[self.index][3] # Column position
 
-            # print(f"Stack: {self.symbol_stack}, Top: {top_symbol}, Token: {current_token}, Column: {current_column}")  # Debugging line
-
             # Skip lambda productions
             if top_symbol == "λ":
-                # Add lambda node to parent
-                if top_node:
-                    lambda_node = ParseTreeNode("λ")
-                    top_node.add_child(lambda_node)
                 continue
 
             # Terminal match
@@ -497,40 +589,22 @@ class LL1Parser:
                 else:
                     # Terminal mismatch - syntax error
                     self.syntax_error(current_line, current_lexeme, {top_symbol}, current_column)
-                    return False, self.errors, None
+                    return False, self.errors
             
             # Non-terminal processing
             elif top_symbol in self.cfg:  # It's a non-terminal
                 if current_token in self.parse_table.get(top_symbol, {}):
                     production = self.parse_table[top_symbol][current_token]
                     
-                    # Create nodes for each symbol in the production
-                    # Reversed twice to maintain correct order in the tree
-                    # (stack is LIFO, so we push in reverse)
-                    temp_nodes = []
-                    for symbol in production:
-                        if symbol != "λ":  # Handle non-lambda symbols
-                            new_node = ParseTreeNode(symbol)
-                            temp_nodes.append((symbol, new_node))
-                        else:  # Handle lambda explicitly
-                            lambda_node = ParseTreeNode("λ")
-                            if top_node:
-                                top_node.add_child(lambda_node)
-                    
-                    # Add nodes to parent in correct order (left to right)
-                    for symbol, node in temp_nodes:
-                        if top_node:
-                            top_node.add_child(node)
-                    
-                    # Push to stacks in reverse order (for correct processing order)
-                    for symbol, node in reversed(temp_nodes):
-                        self.symbol_stack.append(symbol)
-                        self.node_stack.append(node)
+                    # Push symbols to stack in reverse order (for correct processing order)
+                    for symbol in reversed(production):
+                        if symbol != "λ":  # Skip lambda symbols
+                            self.symbol_stack.append(symbol)
                 else:
                     # No production rule - syntax error
                     expected_tokens = set(self.parse_table.get(top_symbol, {}).keys())
                     self.syntax_error(current_line, current_lexeme, expected_tokens, current_column)
-                    return False, self.errors, None
+                    return False, self.errors
             
             # End marker
             elif top_symbol == "$":
@@ -538,15 +612,15 @@ class LL1Parser:
                     break
                 else:
                     self.syntax_error(current_line, current_lexeme, {"$"}, current_column)
-                    return False, self.errors, None
+                    return False, self.errors
         
         # Check if we processed all input
         if self.index < len(self.input_tokens) - 1:
             remaining_token = self.input_tokens[self.index]
             self.syntax_error(remaining_token[2], remaining_token[0], {"EOF"}, remaining_token[3])
-            return False, self.errors, None
+            return False, self.errors
 
-        return True, [], self.parse_tree
+        return True, []
 
     def syntax_error(self, line, found, expected, column):
         """Record a syntax error with correct expected tokens and line number."""

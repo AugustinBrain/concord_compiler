@@ -39,11 +39,6 @@ class Tokenizer:
         self.delim15 = {'=', ';', ' ', '\n', '[', ')'}
         self.delim16 = {'\'', '"', '~', ' ', '\n', '{', '}'} | self.alphadig
         self.delim17 = {';', '}', ',', ' ', '\n'} | self.alphabet
-        
-        self.code = ""
-        self.index = 0
-        self.line_number = 1
-        self.column = 1
 
     def next_char(self):
         if self.index < len(self.code):
@@ -3233,7 +3228,7 @@ class Tokenizer:
                         state = 149
                         lexeme += char
                     elif char == '*':                        
-                        state = 150
+                        state = 151
                         lexeme += char
                     else:
                         column -= 1
