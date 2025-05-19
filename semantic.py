@@ -100,7 +100,7 @@ class Semantic:
                     f"Expected '{self.valid_types[data_type]}', got '{value_type}'."
                 )
             else:
-                    self.errors.append(
+                self.errors.append(
                 f"⚠️ Semantic Error at (line {line}, column {column}): Assign Value Mismatch for '{var_name}'. "
                 f" Expected '{self.valid_types[data_type]}', got '{value_type}'."
             )
@@ -284,6 +284,10 @@ class Semantic:
         dimension = 0
         sizes = None
 
+        type_mapping = {
+            "string_literal": "string",
+        }
+
         while True:
             self.index += 1  # Move to variable identifier            
             var_name, token_type, line, column = self.tokens[self.index]
@@ -320,11 +324,8 @@ class Semantic:
                                 return  # Stop processing if size mismatch
                 else:
                     value_type = self.validate_expression()  # Validate full expression
-                    # Perform Type Checking for scalar variables
+                    
                     if self.is_type_mismatch(data_type, value_type, var_name, line, column):
-                        # self.errors.append(
-                        #     f"Validation Stopped: Data Type {data_type}, Value Type {value_type} at line {line}, column {column}"
-                        # )
                         return  # Stop processing if there's a type mismatch
                     
             # Store the variable in the symbol table
